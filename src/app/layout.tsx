@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Montserrat } from 'next/font/google';
 import './globals.css';
+import { GameModeProvider } from '@/context/gameModeContext';
 
 const montserrat = Montserrat({
 	variable: '--font-montserrat',
@@ -19,7 +20,10 @@ export default function RootLayout({
 }>) {
 	return (
 		<html lang='en'>
-			<body className={`${montserrat.variable} antialiased`}>{children}</body>
+			{/* GameModeProvider */}
+			<GameModeProvider>
+				<body className={`${montserrat.variable} antialiased`}>{children}</body>
+			</GameModeProvider>
 		</html>
 	);
 }

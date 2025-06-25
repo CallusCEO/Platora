@@ -14,8 +14,14 @@ import {
 import Link from 'next/link';
 import { CircleUserIcon } from 'lucide-react';
 import { Button } from '../ui/button';
+import { GameModeContext } from '@/context/gameModeContext';
+import { useContext } from 'react';
+import { handleSmoothScroll } from '@/utils/smoothScroll';
 
 export default function Navbar() {
+	// get game mode from context
+	const { setGameMode } = useContext(GameModeContext);
+
 	return (
 		<div className={styles.container}>
 			<SplitText
@@ -40,7 +46,13 @@ export default function Navbar() {
 								<ul className='grid w-[300px] gap-4'>
 									<li>
 										<NavigationMenuLink asChild>
-											<Link href='#'>
+											<Link 
+									href='#playContainer' 
+									onClick={(e) => {
+										handleSmoothScroll(e, 'playContainer');
+										setGameMode('quick');
+									}}
+								>
 												<div className='font-medium'>Quick Game</div>
 												<div className='text-muted-foreground'>
 													30 minutes.
@@ -48,13 +60,13 @@ export default function Navbar() {
 											</Link>
 										</NavigationMenuLink>
 										<NavigationMenuLink asChild>
-											<Link href='#'>
+											<Link href='#playContainer' onClick={() => setGameMode('medium')}>
 												<div className='font-medium'>Middle Game</div>
 												<div className='text-muted-foreground'>1 hour.</div>
 											</Link>
 										</NavigationMenuLink>
 										<NavigationMenuLink asChild>
-											<Link href='#'>
+											<Link href='#playContainer' onClick={() => setGameMode('long')}>
 												<div className='font-medium'>Long Game</div>
 												<div className='text-muted-foreground'>
 													2 hours.
