@@ -14,16 +14,26 @@ import {
 import Link from 'next/link';
 import { CircleUserIcon } from 'lucide-react';
 import { Button } from '../ui/button';
-import { GameModeContext } from '@/context/gameModeContext';
+import { GameModeContext } from '@/context/gameContext';
 import { useContext } from 'react';
 import { handleSmoothScroll } from '@/utils/smoothScroll';
+import { useGame } from '@/context/gameContext';
 
 export default function Navbar() {
+	const { user, userName, setUserName, loading } = useGame();
 	// get game mode from context
 	const { setGameMode } = useContext(GameModeContext);
 
 	return (
 		<div className={styles.container}>
+			<div>
+				<p>Welcome, {user?.email || userName}!</p>
+				<input
+					value={userName}
+					onChange={(e) => setUserName(e.target.value)}
+					placeholder='Enter username'
+				/>
+			</div>
 			<SplitText
 				text='Platora'
 				className={styles.title}
@@ -46,13 +56,13 @@ export default function Navbar() {
 								<ul className='grid w-[300px] gap-4'>
 									<li>
 										<NavigationMenuLink asChild>
-											<Link 
-									href='#playContainer' 
-									onClick={(e) => {
-										handleSmoothScroll(e, 'playContainer');
-										setGameMode('quick');
-									}}
-								>
+											<Link
+												href='#playContainer'
+												onClick={(e) => {
+													handleSmoothScroll(e, 'playContainer');
+													setGameMode('quick');
+												}}
+											>
 												<div className='font-medium'>Quick Game</div>
 												<div className='text-muted-foreground'>
 													30 minutes.
@@ -60,13 +70,25 @@ export default function Navbar() {
 											</Link>
 										</NavigationMenuLink>
 										<NavigationMenuLink asChild>
-											<Link href='#playContainer' onClick={() => setGameMode('medium')}>
+											<Link
+												href='#playContainer'
+												onClick={(e) => {
+													handleSmoothScroll(e, 'playContainer');
+													setGameMode('medium');
+												}}
+											>
 												<div className='font-medium'>Middle Game</div>
 												<div className='text-muted-foreground'>1 hour.</div>
 											</Link>
 										</NavigationMenuLink>
 										<NavigationMenuLink asChild>
-											<Link href='#playContainer' onClick={() => setGameMode('long')}>
+											<Link
+												href='#playContainer'
+												onClick={(e) => {
+													handleSmoothScroll(e, 'playContainer');
+													setGameMode('long');
+												}}
+											>
 												<div className='font-medium'>Long Game</div>
 												<div className='text-muted-foreground'>
 													2 hours.
@@ -79,12 +101,22 @@ export default function Navbar() {
 						</NavigationMenuItem>
 						<NavigationMenuItem>
 							<NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
-								<Link href='/'>Home</Link>
+								<Link
+									href='#playContainer'
+									onClick={(e) => handleSmoothScroll(e, 'playContainer')}
+								>
+									Home
+								</Link>
 							</NavigationMenuLink>
 						</NavigationMenuItem>
 						<NavigationMenuItem>
 							<NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
-								<Link href='/about'>About</Link>
+								<Link
+									href='#about'
+									onClick={(e) => handleSmoothScroll(e, 'about', 64)}
+								>
+									About
+								</Link>
 							</NavigationMenuLink>
 						</NavigationMenuItem>
 					</NavigationMenuList>

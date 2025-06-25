@@ -13,27 +13,23 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select';
-import { Button } from "@/components/ui/button"
+import { Button } from '@/components/ui/button';
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import { CartesianGrid, Line, LineChart, Dot, PieChart, Pie } from "recharts"
+	Card,
+	CardContent,
+	CardDescription,
+	CardFooter,
+	CardHeader,
+	CardTitle,
+} from '@/components/ui/card';
+import { CartesianGrid, Line, LineChart, Dot, PieChart, Pie } from 'recharts';
 import {
-  ChartConfig,
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "@/components/ui/chart"
-import {
-  Alert,
-  AlertDescription,
-  AlertTitle,
-} from "@/components/ui/alert"
+	ChartConfig,
+	ChartContainer,
+	ChartTooltip,
+	ChartTooltipContent,
+} from '@/components/ui/chart';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import {
 	Command,
 	CommandEmpty,
@@ -43,138 +39,147 @@ import {
 	CommandList,
 	CommandSeparator,
 	CommandShortcut,
-} from "@/components/ui/command"
-import {
-	Popover,
-	PopoverContent,
-	PopoverTrigger,
-  } from "@/components/ui/popover"
+} from '@/components/ui/command';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { useState } from 'react';
 import CountUp from '@/components/reactBits/CountUp/CountUp';
 import { GameContext, GameModeContext } from '@/context/gameContext';
 import { useContext } from 'react';
-import { Loader2, TrendingDown, TrendingUp, AlertCircleIcon, Calculator, Calendar, CreditCard, Settings, Smile, User, FireExtinguisher, Waves, Earth, AlertTriangle, Shield, Globe, Biohazard, DollarSign, Banknote, Plus, Building, } from 'lucide-react';
+import {
+	Loader2,
+	TrendingDown,
+	TrendingUp,
+	AlertCircleIcon,
+	FireExtinguisher,
+	Waves,
+	Earth,
+	AlertTriangle,
+	Shield,
+	Globe,
+	Biohazard,
+	DollarSign,
+	Banknote,
+	Plus,
+	Building,
+} from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import TextPressure from '@/components/reactBits/TextPressure/TextPressure';
 import { Separator } from '@/components/ui/separator';
 import { handleSmoothScroll } from '@/utils/smoothScroll';
 
-
 export default function Home() {
-	const {gameMode, setGameMode} = useContext(GameModeContext);
-	const {playerNumber, setPlayerNumber, userName, setUserName, time, setTime, start, setStart} = useContext(GameContext);
+	const { gameMode, setGameMode } = useContext(GameModeContext);
+	const { playerNumber, start, setStart } = useContext(GameContext);
 
 	// for the popover
-	const [open, setOpen] = useState(false)
+	const [open, setOpen] = useState(false);
 
 	// player count
-	const [maxPlayer, setMaxPlayer] = useState<number>(30);
+	// const [maxPlayer, setMaxPlayer] = useState<number>(30);
 
 	// background chart
 	const chartData = [
-		{ month: "January", revenue: 186000 },
-		{ month: "February", revenue: 305000 },
-		{ month: "March", revenue: 237000 },
-		{ month: "April", revenue: 73000 },
-		{ month: "May", revenue: 209000 },
-		{ month: "June", revenue: 214000 },
-	  ]
+		{ month: 'January', revenue: 186000 },
+		{ month: 'February', revenue: 305000 },
+		{ month: 'March', revenue: 237000 },
+		{ month: 'April', revenue: 73000 },
+		{ month: 'May', revenue: 209000 },
+		{ month: 'June', revenue: 214000 },
+	];
 	const chartConfig = {
 		revenue: {
-		  label: "Revenue",
-		  color: "var(--chart-1)",
+			label: 'Revenue',
+			color: 'var(--chart-1)',
 		},
-	  } satisfies ChartConfig
-	
+	} satisfies ChartConfig;
+
 	const chartData2 = [
-		{ browser: "chrome", clients: 56, fill: "var(--main-secondary)" },
-		{ browser: "safari", clients: 150, fill: "var(--main-secondary)" },
-		{ browser: "firefox", clients: 25, fill: "var(--main-secondary)" },
-		{ browser: "edge", clients: 120, fill: "var(--main-secondary)" },
-		{ browser: "other", clients: 223, fill: "var(--main-secondary)" },
-	  ]
+		{ browser: 'chrome', clients: 56, fill: 'var(--main-secondary)' },
+		{ browser: 'safari', clients: 150, fill: 'var(--main-secondary)' },
+		{ browser: 'firefox', clients: 25, fill: 'var(--main-secondary)' },
+		{ browser: 'edge', clients: 120, fill: 'var(--main-secondary)' },
+		{ browser: 'other', clients: 223, fill: 'var(--main-secondary)' },
+	];
 	const chartConfig2 = {
 		clients: {
-		  label: "Clients",
-		  color: "var(--main)",
+			label: 'Clients',
+			color: 'var(--main)',
 		},
 		chrome: {
-		  label: "Chrome",
-		  color: "var(--main)",
+			label: 'Chrome',
+			color: 'var(--main)',
 		},
 		safari: {
-		  label: "Safari",
-		  color: "var(--main)",
+			label: 'Safari',
+			color: 'var(--main)',
 		},
 		firefox: {
-		  label: "Firefox",
-		  color: "var(--main)",
+			label: 'Firefox',
+			color: 'var(--main)',
 		},
 		edge: {
-		  label: "Edge",
-		  color: "var(--main)",
+			label: 'Edge',
+			color: 'var(--main)',
 		},
 		other: {
-		  label: "Other",
-		  color: "var(--main)",
+			label: 'Other',
+			color: 'var(--main)',
 		},
-	  } satisfies ChartConfig
-	
-	const chartData3 = [
-		{ month: "January", revenue: 2500 },
-		{ month: "February", revenue: 1500 },
-		{ month: "March", revenue: 2500 },
-		{ month: "April", revenue: 1000 },
-		{ month: "May", revenue: 2230 },
-		{ month: "June", revenue: 1640 },
-		{ month: "July", revenue: 1200 },
-		{ month: "August", revenue: 1000 },
-		{ month: "September", revenue: 3056 },
-		{ month: "October", revenue: 1300 },
-		{ month: "November", revenue: 1230 },
-		{ month: "December", revenue: 1650 },
-		{ month: "January", revenue: 1090 },
-		{ month: "February", revenue: 3040 },
-		{ month: "March", revenue: 2030 },
-		{ month: "April", revenue: 8050 },
-		{ month: "May", revenue: 5000 },
-		{ month: "June", revenue: 2350 },
-		{ month: "July", revenue: 6300 },
-		{ month: "August", revenue: 7000 },
-		
+	} satisfies ChartConfig;
 
-	  ]
+	const chartData3 = [
+		{ month: 'January', revenue: 2500 },
+		{ month: 'February', revenue: 1500 },
+		{ month: 'March', revenue: 2500 },
+		{ month: 'April', revenue: 1000 },
+		{ month: 'May', revenue: 2230 },
+		{ month: 'June', revenue: 1640 },
+		{ month: 'July', revenue: 1200 },
+		{ month: 'August', revenue: 1000 },
+		{ month: 'September', revenue: 3056 },
+		{ month: 'October', revenue: 1300 },
+		{ month: 'November', revenue: 1230 },
+		{ month: 'December', revenue: 1650 },
+		{ month: 'January', revenue: 1090 },
+		{ month: 'February', revenue: 3040 },
+		{ month: 'March', revenue: 2030 },
+		{ month: 'April', revenue: 8050 },
+		{ month: 'May', revenue: 5000 },
+		{ month: 'June', revenue: 2350 },
+		{ month: 'July', revenue: 6300 },
+		{ month: 'August', revenue: 7000 },
+	];
 
 	const chartData4 = [
-		{ expense: "materials", cost: 132000, fill: "#ff6666" },
-		{ expense: "rent", cost: 7800, fill: "#ee8888" },
-		{ expense: "salary", cost: 75000, fill: "#bb5555" },
-		{ expense: "other", cost: 12250, fill: "#ff3333" },
-	  ]
+		{ expense: 'materials', cost: 132000, fill: '#ff6666' },
+		{ expense: 'rent', cost: 7800, fill: '#ee8888' },
+		{ expense: 'salary', cost: 75000, fill: '#bb5555' },
+		{ expense: 'other', cost: 12250, fill: '#ff3333' },
+	];
 	const chartConfig4 = {
 		clients: {
-			label: "Expenses",
+			label: 'Expenses',
 		},
 		materials: {
-			label: "Materials",
-			color: "var(--chart-1)",
+			label: 'Materials',
+			color: 'var(--chart-1)',
 		},
 		rent: {
-			label: "Rent",
-			color: "var(--chart-2)",
+			label: 'Rent',
+			color: 'var(--chart-2)',
 		},
 		salary: {
-			label: "Salary",
-			color: "var(--chart-3)",
+			label: 'Salary',
+			color: 'var(--chart-3)',
 		},
 		other: {
-			label: "Other",
-			color: "var(--chart-4)",
+			label: 'Other',
+			color: 'var(--chart-4)',
 		},
-	  } satisfies ChartConfig
+	} satisfies ChartConfig;
 
 	return (
 		<div className={styles.container}>
@@ -212,13 +217,13 @@ export default function Home() {
 					<div className={styles.playersCount}>
 						<CountUp
 							from={0}
-							to={playerNumber}
-							separator=","
-							direction="up"
+							to={30}
+							separator=','
+							direction='up'
 							duration={0.5}
 							className={styles.countUpText}
 						/>
-						<p className={styles.countUpText}>/ {maxPlayer} Players</p>
+						<p className={styles.countUpText}>/ {30} Players</p>
 					</div>
 				</div>
 				<div className={styles.middlePlayContainer}>
@@ -231,53 +236,63 @@ export default function Home() {
 						</CardHeader>
 						<CardContent>
 							<form>
-							<div className="flex flex-col gap-6">
-								<div className="grid gap-2">
-								<Label htmlFor="name">Name</Label>
-								<Input
-									id="name"
-									type="text"
-									placeholder="Bruce Wayne"
-									required
-								/>
+								<div className='flex flex-col gap-6'>
+									<div className='grid gap-2'>
+										<Label htmlFor='name'>Name</Label>
+										<Input
+											id='name'
+											type='text'
+											placeholder='Bruce Wayne'
+											required
+										/>
+									</div>
 								</div>
-							</div>
 							</form>
 						</CardContent>
-						<CardFooter className="flex-col gap-2">
-							{ !start ? 
-							<Button type="submit" className={styles.buttonPlay} onClick={() => setStart(true)}>
-								Start
-							</Button> : 
-							<Button type="submit" disabled variant="ghost" className={styles.buttonPlayDisabled}>
-								<Loader2 className="mr-1 h-4 w-4 animate-spin" />
-								Starting...
-							</Button>
-						}
-					</CardFooter>
+						<CardFooter className='flex-col gap-2'>
+							{!start ? (
+								<Button
+									type='submit'
+									className={styles.buttonPlay}
+									onClick={() => setStart(true)}
+								>
+									Start
+								</Button>
+							) : (
+								<Button
+									type='submit'
+									disabled
+									variant='ghost'
+									className={styles.buttonPlayDisabled}
+								>
+									<Loader2 className='mr-1 h-4 w-4 animate-spin' />
+									Starting...
+								</Button>
+							)}
+						</CardFooter>
 					</Card>
 				</div>
 			</section>
 
 			<div className={styles.background}>
-				<Card >
+				<Card>
 					<CardContent>
 						<ChartContainer config={chartConfig}>
 							<LineChart
 								accessibilityLayer
 								data={chartData}
 								margin={{
-								left: 12,
-								right: 12,
+									left: 12,
+									right: 12,
 								}}
 							>
 								<CartesianGrid vertical={false} />
 								<Line
-								dataKey="revenue"
-								type="natural"
-								stroke="var(--main)"
-								strokeWidth={2}
-								dot={false}
+									dataKey='revenue'
+									type='natural'
+									stroke='var(--main)'
+									strokeWidth={2}
+									dot={false}
 								/>
 							</LineChart>
 						</ChartContainer>
@@ -286,7 +301,7 @@ export default function Home() {
 			</div>
 
 			{/* about section */}
-			<section className={styles.aboutSection}>
+			<section className={styles.aboutSection} id='about'>
 				<SplitText
 					text='What is this game?'
 					className={styles.aboutTitle}
@@ -307,53 +322,53 @@ export default function Home() {
 						</CardHeader>
 						<CardContent>
 							<ChartContainer config={chartConfig2}>
-							<LineChart
-								accessibilityLayer
-								data={chartData2}
-								margin={{
-								top: 24,
-								left: 24,
-								right: 24,
-								}}
-							>
-								<CartesianGrid vertical={false} />
-								<ChartTooltip
-								cursor={false}
-								content={
-									<ChartTooltipContent
-									indicator="line"
-									nameKey="clients"
-									hideLabel
+								<LineChart
+									accessibilityLayer
+									data={chartData2}
+									margin={{
+										top: 24,
+										left: 24,
+										right: 24,
+									}}
+								>
+									<CartesianGrid vertical={false} />
+									<ChartTooltip
+										cursor={false}
+										content={
+											<ChartTooltipContent
+												indicator='line'
+												nameKey='clients'
+												hideLabel
+											/>
+										}
 									/>
-								}
-								/>
-								<Line
-								dataKey="clients"
-								type="natural"
-								stroke="var(--color-clients)"
-								strokeWidth={2}
-								dot={({ payload, ...props }) => {
-									return (
-									<Dot
-										key={payload.browser}
-										r={5}
-										cx={props.cx}
-										cy={props.cy}
-										fill={payload.fill}
-										stroke={payload.fill}
+									<Line
+										dataKey='clients'
+										type='natural'
+										stroke='var(--color-clients)'
+										strokeWidth={2}
+										dot={({ payload, ...props }) => {
+											return (
+												<Dot
+													key={payload.browser}
+													r={5}
+													cx={props.cx}
+													cy={props.cy}
+													fill={payload.fill}
+													stroke={payload.fill}
+												/>
+											);
+										}}
 									/>
-									)
-								}}
-								/>
-							</LineChart>
+								</LineChart>
 							</ChartContainer>
 						</CardContent>
-						<CardFooter className="flex-col items-start gap-2 text-sm">
-							<div className="flex gap-2 leading-none font-medium">
-							Trending up by 11% this month <TrendingUp className="h-4 w-4" />
+						<CardFooter className='flex-col items-start gap-2 text-sm'>
+							<div className='flex gap-2 leading-none font-medium'>
+								Trending up by 11% this month <TrendingUp className='h-4 w-4' />
 							</div>
-							<div className="text-muted-foreground leading-none">
-							Showing total clients for the last 6 months
+							<div className='text-muted-foreground leading-none'>
+								Showing total clients for the last 6 months
 							</div>
 						</CardFooter>
 					</Card>
@@ -363,30 +378,30 @@ export default function Home() {
 						</CardHeader>
 						<CardContent>
 							<ChartContainer config={chartConfig}>
-							<LineChart
-								accessibilityLayer
-								data={chartData3}
-								margin={{
-								left: 12,
-								right: 12,
-								}}
-							>
-								<CartesianGrid vertical={false} />
-								<Line
-								dataKey="revenue"
-								type="natural"
-								strokeWidth={2}
-								dot={false}
-								/>
-							</LineChart>
+								<LineChart
+									accessibilityLayer
+									data={chartData3}
+									margin={{
+										left: 12,
+										right: 12,
+									}}
+								>
+									<CartesianGrid vertical={false} />
+									<Line
+										dataKey='revenue'
+										type='natural'
+										strokeWidth={2}
+										dot={false}
+									/>
+								</LineChart>
 							</ChartContainer>
 						</CardContent>
-						<CardFooter className="flex-col items-start gap-2 text-sm">
-							<div className="flex gap-2 leading-none font-medium">
-							Trending up by 185% this month <TrendingUp className="h-4 w-4" />
+						<CardFooter className='flex-col items-start gap-2 text-sm'>
+							<div className='flex gap-2 leading-none font-medium'>
+								Trending up by 185% this month <TrendingUp className='h-4 w-4' />
 							</div>
-							<div className="text-muted-foreground leading-none">
-							Showing total revenue for the last 20 months
+							<div className='text-muted-foreground leading-none'>
+								Showing total revenue for the last 20 months
 							</div>
 						</CardFooter>
 					</Card>
@@ -395,30 +410,31 @@ export default function Home() {
 							<CardTitle>Track Expenses</CardTitle>
 						</CardHeader>
 						<CardContent>
-						<ChartContainer
-							config={chartConfig4}
-							className="mx-auto aspect-square max-h-[250px]"
+							<ChartContainer
+								config={chartConfig4}
+								className='mx-auto aspect-square max-h-[250px]'
 							>
-							<PieChart>
-								<ChartTooltip
-								cursor={false}
-								content={<ChartTooltipContent hideLabel />}
-								/>
-								<Pie
-								data={chartData4}
-								dataKey="cost"
-								nameKey="expense"
-								stroke="0"
-								/>
-							</PieChart>
-						</ChartContainer>
+								<PieChart>
+									<ChartTooltip
+										cursor={false}
+										content={<ChartTooltipContent hideLabel />}
+									/>
+									<Pie
+										data={chartData4}
+										dataKey='cost'
+										nameKey='expense'
+										stroke='0'
+									/>
+								</PieChart>
+							</ChartContainer>
 						</CardContent>
-						<CardFooter className="flex-col items-start gap-2 text-sm">
-							<div className="flex gap-2 leading-none font-medium">
-							Materials expenses shrunk by 6% this month <TrendingDown className="h-4 w-4" />
+						<CardFooter className='flex-col items-start gap-2 text-sm'>
+							<div className='flex gap-2 leading-none font-medium'>
+								Materials expenses shrunk by 6% this month{' '}
+								<TrendingDown className='h-4 w-4' />
 							</div>
-							<div className="text-muted-foreground leading-none">
-							Showing total expenses for the current month
+							<div className='text-muted-foreground leading-none'>
+								Showing total expenses for the current month
 							</div>
 						</CardFooter>
 					</Card>
@@ -438,13 +454,13 @@ export default function Home() {
 				/>
 
 				{/* To modify */}
-				<div tabIndex={-1} aria-hidden="true">
-					<Alert variant="inoffensive" className={styles.alertContainer}>
+				<div tabIndex={-1} aria-hidden='true'>
+					<Alert variant='inoffensive' className={styles.alertContainer}>
 						<AlertCircleIcon />
 						<AlertTitle>Russia declared war.</AlertTitle>
 						<AlertDescription>
 							<p>This moment in the game will be hard to manage.</p>
-							<ul className="list-inside list-disc text-sm">
+							<ul className='list-inside list-disc text-sm'>
 								<li>Check your revenue often</li>
 								<li>Make the right alliances</li>
 								<li>Protect your companies</li>
@@ -452,13 +468,25 @@ export default function Home() {
 						</AlertDescription>
 					</Alert>
 				</div>
-				
-				<p className={styles.aboutSubtitleCommand}>Look for all the risks and try to avoid them.</p>
+
+				<SplitText
+					text='Look for all the hazards and try to avoid them.'
+					className={styles.aboutSubtitleCommand}
+					delay={100}
+					duration={0.6}
+					ease='power3.out'
+					splitType='words'
+					from={{ opacity: 0, y: 40 }}
+					to={{ opacity: 1, y: 0 }}
+					threshold={0.1}
+					rootMargin='-100px'
+					textAlign='center'
+				/>
 				<Command className={styles.commandContainer}>
-					<CommandInput placeholder="Type a command or search..." />
+					<CommandInput placeholder='Search for a hazard...' />
 					<CommandList className={styles.commandList}>
-						<CommandEmpty>No risk found.</CommandEmpty>
-						<CommandGroup heading="Most dangerous">
+						<CommandEmpty>No hazard found.</CommandEmpty>
+						<CommandGroup heading='Most dangerous'>
 							<CommandItem>
 								<Globe />
 								<span>World War</span>
@@ -476,7 +504,7 @@ export default function Home() {
 							</CommandItem>
 						</CommandGroup>
 						<CommandSeparator />
-						<CommandGroup heading="Lesser inconvenient">
+						<CommandGroup heading='Lesser inconvenient'>
 							<CommandItem>
 								<Shield />
 								<span>Simple War</span>
@@ -523,170 +551,284 @@ export default function Home() {
 
 				<div className={styles.textPressureContainer}>
 					<TextPressure
-						text="Create a company"
+						text='Create a company'
 						flex={true}
 						alpha={false}
 						stroke={false}
 						width={true}
 						weight={true}
 						italic={true}
-						textColor="#ffffff"
-						strokeColor="#ff0000"
+						textColor='#ffffff'
+						strokeColor='#ff0000'
 						minFontSize={36}
 						className='font-montserrat'
 					/>
 				</div>
-				<Separator className="my-4" />
+				<Separator className='my-4' />
 				<div className={styles.containerPopover}>
 					<Popover open={open} onOpenChange={setOpen}>
 						<PopoverTrigger asChild>
-							<Button variant="outline" className={styles.buttonPopover}><Plus /></Button>
+							<Button variant='outline' className={styles.buttonPopover}>
+								<Plus />
+							</Button>
 						</PopoverTrigger>
-						<PopoverContent className="w-124">
-							<div className="grid gap-4">
-								<div className="space-y-2">
+						<PopoverContent className='w-124'>
+							<div className='grid gap-4'>
+								<div className='space-y-2'>
 									<div className='flex align-center gap-1'>
-										<h4 className="leading-none font-medium">Create a company</h4>
+										<h4 className='leading-none font-medium'>
+											Create a company
+										</h4>
 									</div>
-									<p className="text-muted-foreground text-sm">
+									<p className='text-muted-foreground text-sm'>
 										Fill in the form below to create a company.
 									</p>
 								</div>
-								<div className="grid gap-2">
-									<div className="grid grid-cols-3 items-center gap-4">
-										<Label htmlFor="name">Name</Label>
+								<div className='grid gap-2'>
+									<div className='grid grid-cols-3 items-center gap-4'>
+										<Label htmlFor='name'>Name</Label>
 										<Input
 											maxLength={25}
-											id="name"
-											defaultValue="Anon"
-											className="col-span-2 h-8"
+											id='name'
+											defaultValue='Anon'
+											className='col-span-2 h-8'
 										/>
 									</div>
-									<div className="grid grid-cols-3 items-center gap-4">
-										<Label htmlFor="g-description">General Description</Label>
-										<Textarea placeholder='What does your company do?' id='g-description' className="col-span-2 h-8" maxLength={120}></Textarea>
+									<div className='grid grid-cols-3 items-center gap-4'>
+										<Label htmlFor='g-description'>General Description</Label>
+										<Textarea
+											placeholder='What does your company do?'
+											id='g-description'
+											className='col-span-2 h-8'
+											maxLength={120}
+										></Textarea>
 									</div>
-									<div className="grid grid-cols-3 items-center gap-4">
-										<Label htmlFor="p-description">Product Description</Label>
-										<Textarea placeholder='What do you sell?' id='p-description' className="col-span-2 h-8" maxLength={120}></Textarea>
+									<div className='grid grid-cols-3 items-center gap-4'>
+										<Label htmlFor='p-description'>Product Description</Label>
+										<Textarea
+											placeholder='What do you sell?'
+											id='p-description'
+											className='col-span-2 h-8'
+											maxLength={120}
+										></Textarea>
 									</div>
-									<div className="grid grid-cols-3 items-center gap-4">
-										<Label htmlFor="p-description">Product Description</Label>
+									<div className='grid grid-cols-3 items-center gap-4'>
+										<Label htmlFor='p-description'>Product Description</Label>
 										<Select>
-											<SelectTrigger className="w-[180px]">
-												<SelectValue placeholder="Select a class" />
+											<SelectTrigger className='w-[180px]'>
+												<SelectValue placeholder='Select a class' />
 											</SelectTrigger>
 											<SelectContent>
 												{/* tech */}
 												<SelectGroup>
 													<SelectLabel>Technology</SelectLabel>
-													<SelectItem value="information-technology">Information Technology</SelectItem>
-													<SelectItem value="software-saas">Software & SaaS</SelectItem>
-													<SelectItem value="hardware-devices">Hardware & Devices</SelectItem>
-													<SelectItem value="ai-machine-learning">AI & Machine Learning</SelectItem>
-													<SelectItem value="cybersecurity">Cybersecurity</SelectItem>
+													<SelectItem value='information-technology'>
+														Information Technology
+													</SelectItem>
+													<SelectItem value='software-saas'>
+														Software & SaaS
+													</SelectItem>
+													<SelectItem value='hardware-devices'>
+														Hardware & Devices
+													</SelectItem>
+													<SelectItem value='ai-machine-learning'>
+														AI & Machine Learning
+													</SelectItem>
+													<SelectItem value='cybersecurity'>
+														Cybersecurity
+													</SelectItem>
 												</SelectGroup>
 												{/* finance */}
 												<SelectSeparator />
 												<SelectGroup>
 													<SelectLabel>Finance</SelectLabel>
-													<SelectItem value="fintech">Fintech</SelectItem>
-													<SelectItem value="biotech">Biotech</SelectItem>
-													<SelectItem value="healthtech">Healthtech</SelectItem>
-													<SelectItem value="greentech-cleantech">Greentech / Cleantech</SelectItem>
-													<SelectItem value="edtech">Edtech</SelectItem>
-													<SelectItem value="banking">Banking</SelectItem>
-													<SelectItem value="investment-asset-management">Investment & Asset Management</SelectItem>
-													<SelectItem value="insurance">Insurance</SelectItem>
-													<SelectItem value="accounting-audit">Accounting & Audit</SelectItem>
-													<SelectItem value="venture-capital-private-equity">Venture Capital / Private Equity</SelectItem>
+													<SelectItem value='fintech'>Fintech</SelectItem>
+													<SelectItem value='biotech'>Biotech</SelectItem>
+													<SelectItem value='healthtech'>
+														Healthtech
+													</SelectItem>
+													<SelectItem value='greentech-cleantech'>
+														Greentech / Cleantech
+													</SelectItem>
+													<SelectItem value='edtech'>Edtech</SelectItem>
+													<SelectItem value='banking'>Banking</SelectItem>
+													<SelectItem value='investment-asset-management'>
+														Investment & Asset Management
+													</SelectItem>
+													<SelectItem value='insurance'>
+														Insurance
+													</SelectItem>
+													<SelectItem value='accounting-audit'>
+														Accounting & Audit
+													</SelectItem>
+													<SelectItem value='venture-capital-private-equity'>
+														Venture Capital / Private Equity
+													</SelectItem>
 												</SelectGroup>
 												{/* manufacturing */}
 												<SelectSeparator />
 												<SelectGroup>
 													<SelectLabel>Manufacturing</SelectLabel>
-													<SelectItem value="manufacturing">Manufacturing</SelectItem>
-													<SelectItem value="construction">Construction</SelectItem>
-													<SelectItem value="automotive">Automotive</SelectItem>
-													<SelectItem value="aerospace-defense">Aerospace & Defense</SelectItem>
-													<SelectItem value="logistics-supply-chain">Logistics & Supply Chain</SelectItem>
+													<SelectItem value='manufacturing'>
+														Manufacturing
+													</SelectItem>
+													<SelectItem value='construction'>
+														Construction
+													</SelectItem>
+													<SelectItem value='automotive'>
+														Automotive
+													</SelectItem>
+													<SelectItem value='aerospace-defense'>
+														Aerospace & Defense
+													</SelectItem>
+													<SelectItem value='logistics-supply-chain'>
+														Logistics & Supply Chain
+													</SelectItem>
 												</SelectGroup>
 												{/* energy */}
 												<SelectSeparator />
 												<SelectGroup>
 													<SelectLabel>Energy</SelectLabel>
-													<SelectItem value="oil-gas">Oil & Gas</SelectItem>
-													<SelectItem value="renewable-energy">Renewable Energy</SelectItem>
-													<SelectItem value="utilities">Utilities</SelectItem>
-													<SelectItem value="environmental-services">Environmental Services / Waste Management</SelectItem>
+													<SelectItem value='oil-gas'>
+														Oil & Gas
+													</SelectItem>
+													<SelectItem value='renewable-energy'>
+														Renewable Energy
+													</SelectItem>
+													<SelectItem value='utilities'>
+														Utilities
+													</SelectItem>
+													<SelectItem value='environmental-services'>
+														Environmental Services / Waste Management
+													</SelectItem>
 												</SelectGroup>
 												{/* healthcare */}
 												<SelectSeparator />
 												<SelectGroup>
 													<SelectLabel>Healthcare</SelectLabel>
-													<SelectItem value="pharmaceuticals">Pharmaceuticals</SelectItem>
-													<SelectItem value="medical-devices">Medical Devices</SelectItem>
-													<SelectItem value="hospitals-clinics">Hospitals & Clinics</SelectItem>
-													<SelectItem value="healthcare-services">Healthcare Services</SelectItem>
-													<SelectItem value="r-d-biomed">R&D (Biomed, etc.)</SelectItem>
+													<SelectItem value='pharmaceuticals'>
+														Pharmaceuticals
+													</SelectItem>
+													<SelectItem value='medical-devices'>
+														Medical Devices
+													</SelectItem>
+													<SelectItem value='hospitals-clinics'>
+														Hospitals & Clinics
+													</SelectItem>
+													<SelectItem value='healthcare-services'>
+														Healthcare Services
+													</SelectItem>
+													<SelectItem value='r-d-biomed'>
+														R&D (Biomed, etc.)
+													</SelectItem>
 												</SelectGroup>
 												{/* services */}
 												<SelectSeparator />
 												<SelectGroup>
 													<SelectLabel>Services</SelectLabel>
-													<SelectItem value="retail">Retail</SelectItem>
-													<SelectItem value="consumer-goods">Consumer Goods</SelectItem>
-													<SelectItem value="fashion-apparel">Fashion & Apparel</SelectItem>
-													<SelectItem value="luxury-goods">Luxury Goods</SelectItem>
-													<SelectItem value="food-beverage">Food & Beverage</SelectItem>
+													<SelectItem value='retail'>Retail</SelectItem>
+													<SelectItem value='consumer-goods'>
+														Consumer Goods
+													</SelectItem>
+													<SelectItem value='fashion-apparel'>
+														Fashion & Apparel
+													</SelectItem>
+													<SelectItem value='luxury-goods'>
+														Luxury Goods
+													</SelectItem>
+													<SelectItem value='food-beverage'>
+														Food & Beverage
+													</SelectItem>
 												</SelectGroup>
 												{/* media */}
 												<SelectSeparator />
 												<SelectGroup>
 													<SelectLabel>Media</SelectLabel>
-													<SelectItem value="telecommunications">Telecommunications</SelectItem>
-													<SelectItem value="media-entertainment">Media & Entertainment</SelectItem>
-													<SelectItem value="publishing">Publishing</SelectItem>
-													<SelectItem value="advertising-marketing">Advertising & Marketing</SelectItem>
-													<SelectItem value="social-media">Social Media</SelectItem>
+													<SelectItem value='telecommunications'>
+														Telecommunications
+													</SelectItem>
+													<SelectItem value='media-entertainment'>
+														Media & Entertainment
+													</SelectItem>
+													<SelectItem value='publishing'>
+														Publishing
+													</SelectItem>
+													<SelectItem value='advertising-marketing'>
+														Advertising & Marketing
+													</SelectItem>
+													<SelectItem value='social-media'>
+														Social Media
+													</SelectItem>
 												</SelectGroup>
 												{/* education */}
 												<SelectSeparator />
 												<SelectGroup>
 													<SelectLabel>Education</SelectLabel>
-													<SelectItem value="k12-education">K-12 Education</SelectItem>
-													<SelectItem value="higher-education">Higher Education</SelectItem>
-													<SelectItem value="online-learning">Online Learning Platforms</SelectItem>
-													<SelectItem value="professional-training">Professional Training & Certification</SelectItem>
+													<SelectItem value='k12-education'>
+														K-12 Education
+													</SelectItem>
+													<SelectItem value='higher-education'>
+														Higher Education
+													</SelectItem>
+													<SelectItem value='online-learning'>
+														Online Learning Platforms
+													</SelectItem>
+													<SelectItem value='professional-training'>
+														Professional Training & Certification
+													</SelectItem>
 												</SelectGroup>
 												{/* travel */}
 												<SelectSeparator />
 												<SelectGroup>
 													<SelectLabel>Travel</SelectLabel>
-													<SelectItem value="airlines">Airlines</SelectItem>
-													<SelectItem value="hospitality">Hospitality (Hotels, Resorts)</SelectItem>
-													<SelectItem value="tourism">Tourism Agencies</SelectItem>
-													<SelectItem value="recreation">Recreation & Theme Parks</SelectItem>
+													<SelectItem value='airlines'>
+														Airlines
+													</SelectItem>
+													<SelectItem value='hospitality'>
+														Hospitality (Hotels, Resorts)
+													</SelectItem>
+													<SelectItem value='tourism'>
+														Tourism Agencies
+													</SelectItem>
+													<SelectItem value='recreation'>
+														Recreation & Theme Parks
+													</SelectItem>
 												</SelectGroup>
 												{/* government */}
 												<SelectSeparator />
 												<SelectGroup>
 													<SelectLabel>Government</SelectLabel>
-													<SelectItem value="government-public">Government & Public Sector</SelectItem>
-													<SelectItem value="legal-services">Legal Services & Law Firms</SelectItem>
+													<SelectItem value='government-public'>
+														Government & Public Sector
+													</SelectItem>
+													<SelectItem value='legal-services'>
+														Legal Services & Law Firms
+													</SelectItem>
 												</SelectGroup>
 											</SelectContent>
 										</Select>
 									</div>
-									<Button className={styles.buttonPlay} onClick={() => setOpen(false)}>Create</Button>
+									<Button
+										className={styles.buttonPlay}
+										onClick={() => setOpen(false)}
+									>
+										Create
+									</Button>
 								</div>
 							</div>
 						</PopoverContent>
 					</Popover>
-					<p className={styles.textPopover}>Click here and let your imagination do the rest</p>
+					<p className={styles.textPopover}>
+						Click here and let your imagination do the rest
+					</p>
 				</div>
-				<div className='w-[100%] my-[64px]'>
-					<Button className={styles.buttonPlay} onClick={(e) => handleSmoothScroll(e, 'playContainer')}>Play now</Button>
+				<div className='w-[100%] my-[64px] max-w-[664px]'>
+					<Button
+						className={styles.buttonPlay}
+						onClick={(e) => handleSmoothScroll(e, 'playContainer')}
+					>
+						Play now
+					</Button>
 				</div>
 			</section>
 		</div>
