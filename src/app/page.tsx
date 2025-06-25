@@ -9,6 +9,7 @@ import {
 	SelectGroup,
 	SelectItem,
 	SelectLabel,
+	SelectSeparator,
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select';
@@ -53,7 +54,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useState } from 'react';
 import CountUp from '@/components/reactBits/CountUp/CountUp';
-import { GameModeContext } from '@/context/gameModeContext';
+import { GameContext, GameModeContext } from '@/context/gameContext';
 import { useContext } from 'react';
 import { Loader2, TrendingDown, TrendingUp, AlertCircleIcon, Calculator, Calendar, CreditCard, Settings, Smile, User, FireExtinguisher, Waves, Earth, AlertTriangle, Shield, Globe, Biohazard, DollarSign, Banknote, Plus, Building, } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
@@ -64,15 +65,13 @@ import { handleSmoothScroll } from '@/utils/smoothScroll';
 
 export default function Home() {
 	const {gameMode, setGameMode} = useContext(GameModeContext);
-	const [userName, setUserName] = useState<string>('');
-	const [start, setStart] = useState<boolean>(false);
+	const {playerNumber, setPlayerNumber, userName, setUserName, time, setTime, start, setStart} = useContext(GameContext);
 
 	// for the popover
 	const [open, setOpen] = useState(false)
 
 	// player count
 	const [maxPlayer, setMaxPlayer] = useState<number>(30);
-	const [playerNumber, setPlayerNumber] = useState<number>(25);
 
 	// background chart
 	const chartData = [
@@ -428,9 +427,9 @@ export default function Home() {
 					text='Play in real time and compete to earn the most money!'
 					className={styles.aboutSubtitle}
 					delay={100}
-					duration={0.1}
+					duration={0.6}
 					ease='power3.out'
-					splitType='chars'
+					splitType='words'
 					from={{ opacity: 0, y: 40 }}
 					to={{ opacity: 1, y: 0 }}
 					threshold={0.1}
@@ -438,18 +437,21 @@ export default function Home() {
 					textAlign='center'
 				/>
 
-				<Alert variant="destructive" className={styles.alertContainer}>
-					<AlertCircleIcon />
-					<AlertTitle>Russia declared war.</AlertTitle>
-					<AlertDescription>
-					<p>This moment in the game will be hard to manage.</p>
-					<ul className="list-inside list-disc text-sm">
-						<li>Check your revenue often</li>
-						<li>Make the right alliances</li>
-						<li>Protect your companies</li>
-					</ul>
-					</AlertDescription>
-				</Alert>
+				{/* To modify */}
+				<div tabIndex={-1} aria-hidden="true">
+					<Alert variant="inoffensive" className={styles.alertContainer}>
+						<AlertCircleIcon />
+						<AlertTitle>Russia declared war.</AlertTitle>
+						<AlertDescription>
+							<p>This moment in the game will be hard to manage.</p>
+							<ul className="list-inside list-disc text-sm">
+								<li>Check your revenue often</li>
+								<li>Make the right alliances</li>
+								<li>Protect your companies</li>
+							</ul>
+						</AlertDescription>
+					</Alert>
+				</div>
 				
 				<p className={styles.aboutSubtitleCommand}>Look for all the risks and try to avoid them.</p>
 				<Command className={styles.commandContainer}>
@@ -460,14 +462,17 @@ export default function Home() {
 							<CommandItem>
 								<Globe />
 								<span>World War</span>
+								<CommandShortcut></CommandShortcut>
 							</CommandItem>
 							<CommandItem>
 								<Biohazard />
 								<span>Virus</span>
+								<CommandShortcut></CommandShortcut>
 							</CommandItem>
 							<CommandItem>
 								<DollarSign />
 								<span>Economic Crash</span>
+								<CommandShortcut></CommandShortcut>
 							</CommandItem>
 						</CommandGroup>
 						<CommandSeparator />
@@ -475,34 +480,42 @@ export default function Home() {
 							<CommandItem>
 								<Shield />
 								<span>Simple War</span>
+								<CommandShortcut></CommandShortcut>
 							</CommandItem>
 							<CommandItem>
 								<AlertTriangle />
 								<span>Terrorist Attack</span>
+								<CommandShortcut></CommandShortcut>
 							</CommandItem>
 							<CommandItem>
 								<Earth />
 								<span>Earthquake</span>
+								<CommandShortcut></CommandShortcut>
 							</CommandItem>
 							<CommandItem>
 								<Waves />
 								<span>Tsunami</span>
+								<CommandShortcut></CommandShortcut>
 							</CommandItem>
 							<CommandItem>
 								<FireExtinguisher />
 								<span>Fire</span>
+								<CommandShortcut></CommandShortcut>
 							</CommandItem>
 							<CommandItem>
 								<TrendingUp />
 								<span>Inflation</span>
+								<CommandShortcut></CommandShortcut>
 							</CommandItem>
 							<CommandItem>
 								<TrendingDown />
 								<span>Deflation</span>
+								<CommandShortcut></CommandShortcut>
 							</CommandItem>
 							<CommandItem>
 								<Banknote />
 								<span>Bankrupt</span>
+								<CommandShortcut></CommandShortcut>
 							</CommandItem>
 						</CommandGroup>
 					</CommandList>
@@ -556,6 +569,114 @@ export default function Home() {
 									<div className="grid grid-cols-3 items-center gap-4">
 										<Label htmlFor="p-description">Product Description</Label>
 										<Textarea placeholder='What do you sell?' id='p-description' className="col-span-2 h-8" maxLength={120}></Textarea>
+									</div>
+									<div className="grid grid-cols-3 items-center gap-4">
+										<Label htmlFor="p-description">Product Description</Label>
+										<Select>
+											<SelectTrigger className="w-[180px]">
+												<SelectValue placeholder="Select a class" />
+											</SelectTrigger>
+											<SelectContent>
+												{/* tech */}
+												<SelectGroup>
+													<SelectLabel>Technology</SelectLabel>
+													<SelectItem value="information-technology">Information Technology</SelectItem>
+													<SelectItem value="software-saas">Software & SaaS</SelectItem>
+													<SelectItem value="hardware-devices">Hardware & Devices</SelectItem>
+													<SelectItem value="ai-machine-learning">AI & Machine Learning</SelectItem>
+													<SelectItem value="cybersecurity">Cybersecurity</SelectItem>
+												</SelectGroup>
+												{/* finance */}
+												<SelectSeparator />
+												<SelectGroup>
+													<SelectLabel>Finance</SelectLabel>
+													<SelectItem value="fintech">Fintech</SelectItem>
+													<SelectItem value="biotech">Biotech</SelectItem>
+													<SelectItem value="healthtech">Healthtech</SelectItem>
+													<SelectItem value="greentech-cleantech">Greentech / Cleantech</SelectItem>
+													<SelectItem value="edtech">Edtech</SelectItem>
+													<SelectItem value="banking">Banking</SelectItem>
+													<SelectItem value="investment-asset-management">Investment & Asset Management</SelectItem>
+													<SelectItem value="insurance">Insurance</SelectItem>
+													<SelectItem value="accounting-audit">Accounting & Audit</SelectItem>
+													<SelectItem value="venture-capital-private-equity">Venture Capital / Private Equity</SelectItem>
+												</SelectGroup>
+												{/* manufacturing */}
+												<SelectSeparator />
+												<SelectGroup>
+													<SelectLabel>Manufacturing</SelectLabel>
+													<SelectItem value="manufacturing">Manufacturing</SelectItem>
+													<SelectItem value="construction">Construction</SelectItem>
+													<SelectItem value="automotive">Automotive</SelectItem>
+													<SelectItem value="aerospace-defense">Aerospace & Defense</SelectItem>
+													<SelectItem value="logistics-supply-chain">Logistics & Supply Chain</SelectItem>
+												</SelectGroup>
+												{/* energy */}
+												<SelectSeparator />
+												<SelectGroup>
+													<SelectLabel>Energy</SelectLabel>
+													<SelectItem value="oil-gas">Oil & Gas</SelectItem>
+													<SelectItem value="renewable-energy">Renewable Energy</SelectItem>
+													<SelectItem value="utilities">Utilities</SelectItem>
+													<SelectItem value="environmental-services">Environmental Services / Waste Management</SelectItem>
+												</SelectGroup>
+												{/* healthcare */}
+												<SelectSeparator />
+												<SelectGroup>
+													<SelectLabel>Healthcare</SelectLabel>
+													<SelectItem value="pharmaceuticals">Pharmaceuticals</SelectItem>
+													<SelectItem value="medical-devices">Medical Devices</SelectItem>
+													<SelectItem value="hospitals-clinics">Hospitals & Clinics</SelectItem>
+													<SelectItem value="healthcare-services">Healthcare Services</SelectItem>
+													<SelectItem value="r-d-biomed">R&D (Biomed, etc.)</SelectItem>
+												</SelectGroup>
+												{/* services */}
+												<SelectSeparator />
+												<SelectGroup>
+													<SelectLabel>Services</SelectLabel>
+													<SelectItem value="retail">Retail</SelectItem>
+													<SelectItem value="consumer-goods">Consumer Goods</SelectItem>
+													<SelectItem value="fashion-apparel">Fashion & Apparel</SelectItem>
+													<SelectItem value="luxury-goods">Luxury Goods</SelectItem>
+													<SelectItem value="food-beverage">Food & Beverage</SelectItem>
+												</SelectGroup>
+												{/* media */}
+												<SelectSeparator />
+												<SelectGroup>
+													<SelectLabel>Media</SelectLabel>
+													<SelectItem value="telecommunications">Telecommunications</SelectItem>
+													<SelectItem value="media-entertainment">Media & Entertainment</SelectItem>
+													<SelectItem value="publishing">Publishing</SelectItem>
+													<SelectItem value="advertising-marketing">Advertising & Marketing</SelectItem>
+													<SelectItem value="social-media">Social Media</SelectItem>
+												</SelectGroup>
+												{/* education */}
+												<SelectSeparator />
+												<SelectGroup>
+													<SelectLabel>Education</SelectLabel>
+													<SelectItem value="k12-education">K-12 Education</SelectItem>
+													<SelectItem value="higher-education">Higher Education</SelectItem>
+													<SelectItem value="online-learning">Online Learning Platforms</SelectItem>
+													<SelectItem value="professional-training">Professional Training & Certification</SelectItem>
+												</SelectGroup>
+												{/* travel */}
+												<SelectSeparator />
+												<SelectGroup>
+													<SelectLabel>Travel</SelectLabel>
+													<SelectItem value="airlines">Airlines</SelectItem>
+													<SelectItem value="hospitality">Hospitality (Hotels, Resorts)</SelectItem>
+													<SelectItem value="tourism">Tourism Agencies</SelectItem>
+													<SelectItem value="recreation">Recreation & Theme Parks</SelectItem>
+												</SelectGroup>
+												{/* government */}
+												<SelectSeparator />
+												<SelectGroup>
+													<SelectLabel>Government</SelectLabel>
+													<SelectItem value="government-public">Government & Public Sector</SelectItem>
+													<SelectItem value="legal-services">Legal Services & Law Firms</SelectItem>
+												</SelectGroup>
+											</SelectContent>
+										</Select>
 									</div>
 									<Button className={styles.buttonPlay} onClick={() => setOpen(false)}>Create</Button>
 								</div>

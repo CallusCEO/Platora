@@ -11,6 +11,8 @@ const alertVariants = cva(
         default: "bg-card text-card-foreground",
         destructive:
           "text-destructive bg-card [&>svg]:text-current *:data-[slot=alert-description]:text-destructive/90",
+        inoffensive:
+          "text-destructive bg-card [&>svg]:text-current *:data-[slot=alert-description]:text-destructive/90",
       },
     },
     defaultVariants: {
@@ -25,12 +27,17 @@ function Alert({
   ...props
 }: React.ComponentProps<"div"> & VariantProps<typeof alertVariants>) {
   return (
-    <div
-      data-slot="alert"
-      role="alert"
-      className={cn(alertVariants({ variant }), className)}
-      {...props}
-    />
+    <>
+      {variant === "inoffensive" ? <div
+        className={cn(alertVariants({ variant }), className)}
+        {...props}
+      /> : <div
+        data-slot="alert"
+        role="alert"
+        className={cn(alertVariants({ variant }), className)}
+        {...props}
+      />}
+    </>
   )
 }
 
