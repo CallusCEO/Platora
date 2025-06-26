@@ -109,6 +109,17 @@
 	justify-content: center;
 }
 
+.buttonCancel {
+	width: 100%;
+	background-color: #bb3333;
+	color: var(--primary-foreground);
+	transition: background-color 0.2s;
+
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
 .buttonPlayDisabled {
 	width: 100%;
 	background-color: var(--main);
@@ -190,7 +201,7 @@
 
 .alertContainer {
 	margin-top: 64px;
-	width: clamp(324px, 90vw, 664px)
+	width: clamp(324px, 90vw, 664px);
 }
 
 .commandContainer {
@@ -268,5 +279,9 @@
 @media (hover: hover) and (pointer: fine) {
 	.buttonPlay:hover {
 		background-color: var(--main);
+	}
+
+	.buttonCancel:hover {
+		background-color: #ff6666;
 	}
 }

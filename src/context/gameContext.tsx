@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
-import { Company, GameContextType, Player } from '@/types/gameTypes';
+import { AllGameStatus, Company, GameContextType, Player } from '@/types/gameTypes';
 
 // ----------------------
 // Game Context
@@ -13,8 +13,13 @@ export const GameContext = createContext<GameContextType>({
 	player: null,
 	company: null,
 	gameId: null,
-	playerNumber: 0,
-	setPlayerNumber: () => {},
+	setGameId: () => {},
+	gameStatus: 'waiting',
+	setGameStatus: () => {},
+	maxPlayerNumber: 0,
+	setMaxPlayerNumber: () => {},
+	joinedPlayerNumber: 0,
+	setJoinedPlayerNumber: () => {},
 	userName: '',
 	setUserName: () => {},
 	time: 0,
@@ -38,8 +43,10 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 	const [player, setPlayer] = useState<Player | null>(null);
 	const [company, setCompany] = useState<Company | null>(null);
 	const [gameId, setGameId] = useState<string | null>(null);
+	const [gameStatus, setGameStatus] = useState<AllGameStatus>(null);
 
-	const [playerNumber, setPlayerNumber] = useState<number>(0);
+	const [maxPlayerNumber, setMaxPlayerNumber] = useState<number>(0);
+	const [joinedPlayerNumber, setJoinedPlayerNumber] = useState<number>(0);
 	const [userName, setUserName] = useState<string>('');
 	const [time, setTime] = useState<number>(0);
 	const [start, setStart] = useState<boolean>(false);
@@ -96,8 +103,13 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 				player,
 				company,
 				gameId,
-				playerNumber,
-				setPlayerNumber,
+				setGameId,
+				gameStatus,
+				setGameStatus,
+				maxPlayerNumber,
+				setMaxPlayerNumber,
+				joinedPlayerNumber,
+				setJoinedPlayerNumber,
 				userName,
 				setUserName,
 				time,

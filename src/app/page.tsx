@@ -40,17 +40,13 @@ import {
 	CommandSeparator,
 	CommandShortcut,
 } from '@/components/ui/command';
-import {
-	Popover,
-	PopoverContent,
-	PopoverTrigger,
-} from '@/components/ui/popover';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useState } from 'react';
 import CountUp from '@/components/reactBits/CountUp/CountUp';
-import { GameContext, GameModeContext } from '@/context/gameContext';
+import { useGame, useGameMode } from '@/context/gameContext';
 import { useContext } from 'react';
 import {
 	Loader2,
@@ -67,16 +63,33 @@ import {
 	DollarSign,
 	Banknote,
 	Plus,
+	XCircle,
 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import TextPressure from '@/components/reactBits/TextPressure/TextPressure';
 import { Separator } from '@/components/ui/separator';
 import { handleSmoothScroll } from '@/utils/smoothScroll';
+import { Slider } from '@/components/ui/slider';
+import { cn } from '@/lib/utils';
 
 export default function Home() {
-	const { gameMode, setGameMode } = useContext(GameModeContext);
-	const { playerNumber, start, setStart } = useContext(GameContext);
+	const { gameMode, setGameMode } = useGameMode();
+	const {
+		maxPlayerNumber,
+		setMaxPlayerNumber,
+		joinedPlayerNumber,
+		setJoinedPlayerNumber,
+		setGameId,
+		setUserName,
+		setGameStatus,
+		gameStatus,
+	} = useGame();
+
+	const [inputGameId, setInputGameId] = useState('');
+	const [inputName, setInputName] = useState('');
+	const [inputPlayerNumber, setInputPlayerNumber] = useState(10);
+	const [inputGameMode, setInputGameMode] = useState('quick');
 
 	// for the popover
 	const [open, setOpen] = useState(false);
@@ -185,6 +198,37 @@ export default function Home() {
 		},
 	} satisfies ChartConfig;
 
+	// methods to set userName and gameId when joining and creating
+
+	const joinGame = () => {
+		// --> We will create a method to join a game in the database
+		if (inputGameId && inputName && joinedPlayerNumber < maxPlayerNumber) {
+			setGameId(inputGameId);
+			setUserName(inputName);
+		}
+	};
+
+	const createGame = () => {
+		// --> We will create a method to create a new game in the database
+		if (inputGameMode && inputName && inputPlayerNumber) {
+			setUserName(inputName);
+			setMaxPlayerNumber(inputPlayerNumber);
+			setGameMode(inputGameMode);
+			setGameStatus('waiting');
+			setJoinedPlayerNumber(1);
+		}
+	};
+
+	const cancelGame = () => {
+		// reset all the values
+		// --> We will need to have a method to delete the instance of the game in the database
+		setGameId('');
+		setUserName('');
+		setMaxPlayerNumber(0);
+		setGameMode('quick');
+		setGameStatus(null);
+	};
+
 	return (
 		<div className={styles.container}>
 			<Navbar />
@@ -216,13 +260,13 @@ export default function Home() {
 						<div className={styles.playersCount}>
 							<CountUp
 								from={0}
-								to={30}
+								to={joinedPlayerNumber}
 								separator=','
 								direction={undefined}
 								duration={0.5}
 								className={styles.countUpText}
 							/>
-							<p className={styles.countUpText}>/ {30} Players</p>
+							<p className={styles.countUpText}>/ {maxPlayerNumber} Players</p>
 						</div>
 					</div>
 					<div className={styles.middlePlayContainer}>
@@ -237,14 +281,13 @@ export default function Home() {
 								<form>
 									<div className='flex flex-col gap-6'>
 										<div className='grid gap-2'>
-											<Label htmlFor='accessId'>
-												Access id
-											</Label>
+											<Label htmlFor='accessId'>Access id</Label>
 											<Input
 												id='accessId'
 												type='text'
 												placeholder='xxxxxxxx-xxxx-Mxxx-Nxxx-xxxxxxxxxxxx'
 												required
+												onChange={(e) => setInputGameId(e.target.value)}
 											/>
 										</div>
 									</div>
@@ -254,8 +297,7 @@ export default function Home() {
 							<CardHeader>
 								<CardTitle>Enter your name</CardTitle>
 								<CardDescription>
-									This name will be displayed on your profile
-									during the game.
+									This name will be displayed on your profile during the game.
 								</CardDescription>
 							</CardHeader>
 							<CardContent>
@@ -268,21 +310,14 @@ export default function Home() {
 												type='text'
 												placeholder='Bruce Wayne'
 												required
+												onChange={(e) => setInputName(e.target.value)}
 											/>
 										</div>
 									</div>
 								</form>
 							</CardContent>
 							<CardFooter className='flex-col gap-2'>
-								{!start ? (
-									<Button
-										type='submit'
-										className={styles.buttonPlay}
-										onClick={() => setStart(true)}
-									>
-										Join
-									</Button>
-								) : (
+								{gameStatus === 'waiting' ? (
 									<Button
 										type='submit'
 										disabled
@@ -292,6 +327,14 @@ export default function Home() {
 										<Loader2 className='mr-1 h-4 w-4 animate-spin' />
 										Joining...
 									</Button>
+								) : (
+									<Button
+										type='submit'
+										className={styles.buttonPlay}
+										onClick={() => joinGame()}
+									>
+										Join
+									</Button>
 								)}
 							</CardFooter>
 						</Card>
@@ -300,8 +343,8 @@ export default function Home() {
 				<TabsContent value='create' className={styles.playContainer}>
 					<div className={styles.topPlayContainer}>
 						<Select
-							onValueChange={(value) => setGameMode(value)}
-							value={gameMode}
+							onValueChange={(value) => setInputGameMode(value)}
+							value={inputGameMode}
 						>
 							<SelectTrigger className='w-[180px] cursor-pointer'>
 								<SelectValue placeholder='Pick a game mode' />
@@ -309,37 +352,57 @@ export default function Home() {
 							<SelectContent>
 								<SelectGroup>
 									<SelectLabel>Game Mode</SelectLabel>
-									<SelectItem value='quick'>
-										Quick - 30 min
-									</SelectItem>
-									<SelectItem value='medium'>
-										Medium - 1 hour
-									</SelectItem>
-									<SelectItem value='long'>
-										Long - 2 hours
-									</SelectItem>
+									<SelectItem value='quick'>Quick - 30 min</SelectItem>
+									<SelectItem value='medium'>Medium - 1 hour</SelectItem>
+									<SelectItem value='long'>Long - 2 hours</SelectItem>
 								</SelectGroup>
 							</SelectContent>
 						</Select>
 						<div className={styles.playersCount}>
 							<CountUp
 								from={0}
-								to={30}
+								to={joinedPlayerNumber}
 								separator=','
 								direction='up'
 								duration={0.5}
 								className={styles.countUpText}
 							/>
-							<p className={styles.countUpText}>/ {30} Players</p>
+							<p className={styles.countUpText}>/ {maxPlayerNumber} Players</p>
 						</div>
 					</div>
 					<div className={styles.middlePlayContainer}>
 						<Card className={styles.card}>
 							<CardHeader>
+								<CardTitle>Select the number of players</CardTitle>
+								<CardDescription>
+									Select the number of players you want to play with.
+								</CardDescription>
+							</CardHeader>
+							<CardContent>
+								<form>
+									<div className='flex flex-col gap-6'>
+										<div className='grid gap-2'>
+											<Label htmlFor='playerNumber'>Number of players</Label>
+											<Slider
+												defaultValue={[5]}
+												min={1}
+												max={30}
+												step={1}
+												className='w-[60%] mt-2'
+												onValueChange={(value) =>
+													setInputPlayerNumber(value[0])
+												}
+											/>
+											<p>{inputPlayerNumber} Players</p>
+										</div>
+									</div>
+								</form>
+							</CardContent>
+							<Separator />
+							<CardHeader>
 								<CardTitle>Enter your name</CardTitle>
 								<CardDescription>
-									This name will be displayed on your profile
-									during the game.
+									This name will be displayed on your profile during the game.
 								</CardDescription>
 							</CardHeader>
 							<CardContent>
@@ -352,29 +415,42 @@ export default function Home() {
 												type='text'
 												placeholder='Bruce Wayne'
 												required
+												value={inputName}
+												onChange={(e) => setInputName(e.target.value)}
 											/>
 										</div>
 									</div>
 								</form>
 							</CardContent>
 							<CardFooter className='flex-col gap-2'>
-								{!start ? (
-									<Button
-										type='submit'
-										className={styles.buttonPlay}
-										onClick={() => setStart(true)}
-									>
-										Create
-									</Button>
+								{gameStatus === 'waiting' ? (
+									<>
+										<Button
+											type='submit'
+											disabled
+											variant='ghost'
+											className={styles.buttonPlayDisabled}
+										>
+											<Loader2 className='mr-1 h-4 w-4 animate-spin' />
+											Waiting for players...
+										</Button>
+										<Button
+											type='submit'
+											variant='ghost'
+											className={styles.buttonCancel}
+											onClick={() => cancelGame()}
+										>
+											<XCircle className='mr-1 h-4 w-4' />
+											Cancel
+										</Button>
+									</>
 								) : (
 									<Button
 										type='submit'
-										disabled
-										variant='ghost'
-										className={styles.buttonPlayDisabled}
+										className={styles.buttonPlay}
+										onClick={() => createGame()}
 									>
-										<Loader2 className='mr-1 h-4 w-4 animate-spin' />
-										Waiting for players...
+										Create
 									</Button>
 								)}
 							</CardFooter>
@@ -474,8 +550,7 @@ export default function Home() {
 						</CardContent>
 						<CardFooter className='flex-col items-start gap-2 text-sm'>
 							<div className='flex gap-2 leading-none font-medium'>
-								Trending up by 11% this month{' '}
-								<TrendingUp className='h-4 w-4' />
+								Trending up by 11% this month <TrendingUp className='h-4 w-4' />
 							</div>
 							<div className='text-muted-foreground leading-none'>
 								Showing total clients for the last 6 months
@@ -508,8 +583,7 @@ export default function Home() {
 						</CardContent>
 						<CardFooter className='flex-col items-start gap-2 text-sm'>
 							<div className='flex gap-2 leading-none font-medium'>
-								Trending up by 185% this month{' '}
-								<TrendingUp className='h-4 w-4' />
+								Trending up by 185% this month <TrendingUp className='h-4 w-4' />
 							</div>
 							<div className='text-muted-foreground leading-none'>
 								Showing total revenue for the last 20 months
@@ -528,9 +602,7 @@ export default function Home() {
 								<PieChart>
 									<ChartTooltip
 										cursor={false}
-										content={
-											<ChartTooltipContent hideLabel />
-										}
+										content={<ChartTooltipContent hideLabel />}
 									/>
 									<Pie
 										data={chartData4}
@@ -568,16 +640,11 @@ export default function Home() {
 
 				{/* To modify */}
 				<div tabIndex={-1} aria-hidden='true'>
-					<Alert
-						variant='inoffensive'
-						className={styles.alertContainer}
-					>
+					<Alert variant='inoffensive' className={styles.alertContainer}>
 						<AlertCircleIcon />
 						<AlertTitle>Russia declared war.</AlertTitle>
 						<AlertDescription>
-							<p>
-								This moment in the game will be hard to manage.
-							</p>
+							<p>This moment in the game will be hard to manage.</p>
 							<ul className='list-inside list-disc text-sm'>
 								<li>Check your revenue often</li>
 								<li>Make the right alliances</li>
@@ -686,10 +753,7 @@ export default function Home() {
 				<div className={styles.containerPopover}>
 					<Popover open={open} onOpenChange={setOpen}>
 						<PopoverTrigger asChild>
-							<Button
-								variant='outline'
-								className={styles.buttonPopover}
-							>
+							<Button variant='outline' className={styles.buttonPopover}>
 								<Plus />
 							</Button>
 						</PopoverTrigger>
@@ -702,8 +766,7 @@ export default function Home() {
 										</h4>
 									</div>
 									<p className='text-muted-foreground text-sm'>
-										Fill in the form below to create a
-										company.
+										Fill in the form below to create a company.
 									</p>
 								</div>
 								<div className='grid gap-2'>
@@ -717,9 +780,7 @@ export default function Home() {
 										/>
 									</div>
 									<div className='grid grid-cols-3 items-center gap-4'>
-										<Label htmlFor='g-description'>
-											General Description
-										</Label>
+										<Label htmlFor='g-description'>General Description</Label>
 										<Textarea
 											placeholder='What does your company do?'
 											id='g-description'
@@ -728,9 +789,7 @@ export default function Home() {
 										></Textarea>
 									</div>
 									<div className='grid grid-cols-3 items-center gap-4'>
-										<Label htmlFor='p-description'>
-											Product Description
-										</Label>
+										<Label htmlFor='p-description'>Product Description</Label>
 										<Textarea
 											placeholder='What do you sell?'
 											id='p-description'
@@ -739,9 +798,7 @@ export default function Home() {
 										></Textarea>
 									</div>
 									<div className='grid grid-cols-3 items-center gap-4'>
-										<Label htmlFor='p-description'>
-											Product Description
-										</Label>
+										<Label htmlFor='p-description'>Product Description</Label>
 										<Select>
 											<SelectTrigger className='w-[180px]'>
 												<SelectValue placeholder='Select a class' />
@@ -749,9 +806,7 @@ export default function Home() {
 											<SelectContent>
 												{/* tech */}
 												<SelectGroup>
-													<SelectLabel>
-														Technology
-													</SelectLabel>
+													<SelectLabel>Technology</SelectLabel>
 													<SelectItem value='information-technology'>
 														Information Technology
 													</SelectItem>
@@ -771,30 +826,19 @@ export default function Home() {
 												{/* finance */}
 												<SelectSeparator />
 												<SelectGroup>
-													<SelectLabel>
-														Finance
-													</SelectLabel>
-													<SelectItem value='fintech'>
-														Fintech
-													</SelectItem>
-													<SelectItem value='biotech'>
-														Biotech
-													</SelectItem>
+													<SelectLabel>Finance</SelectLabel>
+													<SelectItem value='fintech'>Fintech</SelectItem>
+													<SelectItem value='biotech'>Biotech</SelectItem>
 													<SelectItem value='healthtech'>
 														Healthtech
 													</SelectItem>
 													<SelectItem value='greentech-cleantech'>
 														Greentech / Cleantech
 													</SelectItem>
-													<SelectItem value='edtech'>
-														Edtech
-													</SelectItem>
-													<SelectItem value='banking'>
-														Banking
-													</SelectItem>
+													<SelectItem value='edtech'>Edtech</SelectItem>
+													<SelectItem value='banking'>Banking</SelectItem>
 													<SelectItem value='investment-asset-management'>
-														Investment & Asset
-														Management
+														Investment & Asset Management
 													</SelectItem>
 													<SelectItem value='insurance'>
 														Insurance
@@ -803,16 +847,13 @@ export default function Home() {
 														Accounting & Audit
 													</SelectItem>
 													<SelectItem value='venture-capital-private-equity'>
-														Venture Capital /
-														Private Equity
+														Venture Capital / Private Equity
 													</SelectItem>
 												</SelectGroup>
 												{/* manufacturing */}
 												<SelectSeparator />
 												<SelectGroup>
-													<SelectLabel>
-														Manufacturing
-													</SelectLabel>
+													<SelectLabel>Manufacturing</SelectLabel>
 													<SelectItem value='manufacturing'>
 														Manufacturing
 													</SelectItem>
@@ -832,9 +873,7 @@ export default function Home() {
 												{/* energy */}
 												<SelectSeparator />
 												<SelectGroup>
-													<SelectLabel>
-														Energy
-													</SelectLabel>
+													<SelectLabel>Energy</SelectLabel>
 													<SelectItem value='oil-gas'>
 														Oil & Gas
 													</SelectItem>
@@ -845,16 +884,13 @@ export default function Home() {
 														Utilities
 													</SelectItem>
 													<SelectItem value='environmental-services'>
-														Environmental Services /
-														Waste Management
+														Environmental Services / Waste Management
 													</SelectItem>
 												</SelectGroup>
 												{/* healthcare */}
 												<SelectSeparator />
 												<SelectGroup>
-													<SelectLabel>
-														Healthcare
-													</SelectLabel>
+													<SelectLabel>Healthcare</SelectLabel>
 													<SelectItem value='pharmaceuticals'>
 														Pharmaceuticals
 													</SelectItem>
@@ -874,12 +910,8 @@ export default function Home() {
 												{/* services */}
 												<SelectSeparator />
 												<SelectGroup>
-													<SelectLabel>
-														Services
-													</SelectLabel>
-													<SelectItem value='retail'>
-														Retail
-													</SelectItem>
+													<SelectLabel>Services</SelectLabel>
+													<SelectItem value='retail'>Retail</SelectItem>
 													<SelectItem value='consumer-goods'>
 														Consumer Goods
 													</SelectItem>
@@ -896,9 +928,7 @@ export default function Home() {
 												{/* media */}
 												<SelectSeparator />
 												<SelectGroup>
-													<SelectLabel>
-														Media
-													</SelectLabel>
+													<SelectLabel>Media</SelectLabel>
 													<SelectItem value='telecommunications'>
 														Telecommunications
 													</SelectItem>
@@ -918,9 +948,7 @@ export default function Home() {
 												{/* education */}
 												<SelectSeparator />
 												<SelectGroup>
-													<SelectLabel>
-														Education
-													</SelectLabel>
+													<SelectLabel>Education</SelectLabel>
 													<SelectItem value='k12-education'>
 														K-12 Education
 													</SelectItem>
@@ -928,26 +956,21 @@ export default function Home() {
 														Higher Education
 													</SelectItem>
 													<SelectItem value='online-learning'>
-														Online Learning
-														Platforms
+														Online Learning Platforms
 													</SelectItem>
 													<SelectItem value='professional-training'>
-														Professional Training &
-														Certification
+														Professional Training & Certification
 													</SelectItem>
 												</SelectGroup>
 												{/* travel */}
 												<SelectSeparator />
 												<SelectGroup>
-													<SelectLabel>
-														Travel
-													</SelectLabel>
+													<SelectLabel>Travel</SelectLabel>
 													<SelectItem value='airlines'>
 														Airlines
 													</SelectItem>
 													<SelectItem value='hospitality'>
-														Hospitality (Hotels,
-														Resorts)
+														Hospitality (Hotels, Resorts)
 													</SelectItem>
 													<SelectItem value='tourism'>
 														Tourism Agencies
@@ -959,16 +982,12 @@ export default function Home() {
 												{/* government */}
 												<SelectSeparator />
 												<SelectGroup>
-													<SelectLabel>
-														Government
-													</SelectLabel>
+													<SelectLabel>Government</SelectLabel>
 													<SelectItem value='government-public'>
-														Government & Public
-														Sector
+														Government & Public Sector
 													</SelectItem>
 													<SelectItem value='legal-services'>
-														Legal Services & Law
-														Firms
+														Legal Services & Law Firms
 													</SelectItem>
 												</SelectGroup>
 											</SelectContent>
