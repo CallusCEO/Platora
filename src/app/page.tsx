@@ -47,7 +47,6 @@ import { Label } from '@/components/ui/label';
 import { useState } from 'react';
 import CountUp from '@/components/reactBits/CountUp/CountUp';
 import { useGame, useGameMode } from '@/context/gameContext';
-import { useContext } from 'react';
 import {
 	Loader2,
 	TrendingDown,
@@ -71,10 +70,11 @@ import TextPressure from '@/components/reactBits/TextPressure/TextPressure';
 import { Separator } from '@/components/ui/separator';
 import { handleSmoothScroll } from '@/utils/smoothScroll';
 import { Slider } from '@/components/ui/slider';
-import { cn } from '@/lib/utils';
+import { useGameActions } from '@/hooks/gameHooks';
 
 export default function Home() {
-	const { gameMode, setGameMode } = useGameMode();
+	const { joinGame, createGame, loading, error } = useGameActions();
+	const { setGameMode } = useGameMode();
 	const {
 		maxPlayerNumber,
 		setMaxPlayerNumber,
@@ -200,25 +200,6 @@ export default function Home() {
 
 	// methods to set userName and gameId when joining and creating
 
-	const joinGame = () => {
-		// --> We will create a method to join a game in the database
-		if (inputGameId && inputName && joinedPlayerNumber < maxPlayerNumber) {
-			setGameId(inputGameId);
-			setUserName(inputName);
-		}
-	};
-
-	const createGame = () => {
-		// --> We will create a method to create a new game in the database
-		if (inputGameMode && inputName && inputPlayerNumber) {
-			setUserName(inputName);
-			setMaxPlayerNumber(inputPlayerNumber);
-			setGameMode(inputGameMode);
-			setGameStatus('waiting');
-			setJoinedPlayerNumber(1);
-		}
-	};
-
 	const cancelGame = () => {
 		// reset all the values
 		// --> We will need to have a method to delete the instance of the game in the database
@@ -331,7 +312,7 @@ export default function Home() {
 									<Button
 										type='submit'
 										className={styles.buttonPlay}
-										onClick={() => joinGame()}
+										onClick={() => joinGame(inputGameId, inputName)}
 									>
 										Join
 									</Button>
@@ -448,7 +429,9 @@ export default function Home() {
 									<Button
 										type='submit'
 										className={styles.buttonPlay}
-										onClick={() => createGame()}
+										onClick={() =>
+											createGame(inputGameMode, inputPlayerNumber, inputName)
+										}
 									>
 										Create
 									</Button>

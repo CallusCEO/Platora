@@ -64,7 +64,7 @@ This is a full, **step-by-step and explicit** development roadmap for the multip
 -   Dropdown or input for `gameId` (or create new one)
 -   Button to "Join Game" or "Create Game"
 
-[ ] On click:
+[x] On click:
 
 -   Set `gameId` and `userName` into context
 -   Check if player exists in Supabase → if not, insert it into `players`

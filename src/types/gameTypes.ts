@@ -338,8 +338,6 @@ export type Player = {
 	wealth: number;
 	stats_json?: PlayerStatsType;
 	location?: AllLocations; // country code or name
-	// strengths?: string[];
-	// weaknesses?: string[];
 };
 
 export type Company = {
