@@ -426,11 +426,14 @@ export type Customer = {
 export type GameContextType = {
 	loading: boolean;
 	player: Player | null;
+	setPlayer: (value: Player | null) => void;
 	company: Company | null;
 	gameId: string | null;
 	setGameId: (value: string) => void;
 	gameStatus: AllGameStatus;
 	setGameStatus: (value: AllGameStatus) => void;
+	game: Game | null;
+	setGame: (value: Game) => void;
 	maxPlayerNumber: number;
 	setMaxPlayerNumber: (value: number) => void;
 	joinedPlayerNumber: number;

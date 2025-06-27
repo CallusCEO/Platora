@@ -98,6 +98,21 @@
 	background-color: transparent;
 }
 
+.gameId {
+	font-size: 14px;
+	font-weight: 500;
+	font-family: var(--font-montserrat);
+	opacity: 0;
+	animation: enter-animation 0.5s ease forwards;
+	animation-delay: 0.5s;
+	text-align: center;
+
+	border-radius: 10px;
+	border: 1px solid var(--border);
+	padding: 8px 16px;
+	margin: 0 auto;
+}
+
 .buttonPlay {
 	width: 100%;
 	background-color: var(--foreground);

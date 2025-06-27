@@ -73,14 +73,16 @@ import { Slider } from '@/components/ui/slider';
 import { useGameActions } from '@/hooks/gameHooks';
 
 export default function Home() {
-	const { joinGame, createGame, loading, error } = useGameActions();
+	const { joinGame, createGame, deleteGame, readGame, quitGame, loading, error } =
+		useGameActions();
 	const { setGameMode } = useGameMode();
 	const {
+		player,
 		maxPlayerNumber,
 		setMaxPlayerNumber,
 		joinedPlayerNumber,
-		setJoinedPlayerNumber,
 		setGameId,
+		gameId,
 		setUserName,
 		setGameStatus,
 		gameStatus,
@@ -198,23 +200,11 @@ export default function Home() {
 		},
 	} satisfies ChartConfig;
 
-	// methods to set userName and gameId when joining and creating
-
-	const cancelGame = () => {
-		// reset all the values
-		// --> We will need to have a method to delete the instance of the game in the database
-		setGameId('');
-		setUserName('');
-		setMaxPlayerNumber(0);
-		setGameMode('quick');
-		setGameStatus(null);
-	};
-
 	return (
 		<div className={styles.container}>
 			<Navbar />
 			<SplitText
-				text='Platora'
+				text='Platora v0.1'
 				className={styles.title}
 				delay={100}
 				duration={0.6}
@@ -298,21 +288,35 @@ export default function Home() {
 								</form>
 							</CardContent>
 							<CardFooter className='flex-col gap-2'>
-								{gameStatus === 'waiting' ? (
-									<Button
-										type='submit'
-										disabled
-										variant='ghost'
-										className={styles.buttonPlayDisabled}
-									>
-										<Loader2 className='mr-1 h-4 w-4 animate-spin' />
-										Joining...
-									</Button>
+								{player ? (
+									<>
+										<Button
+											type='submit'
+											disabled
+											variant='ghost'
+											className={styles.buttonPlayDisabled}
+										>
+											<Loader2 className='mr-1 h-4 w-4 animate-spin' />
+											Waiting for the host...
+										</Button>
+										<Button
+											type='submit'
+											className={styles.buttonCancel}
+											onClick={async () => {
+												await quitGame();
+											}}
+										>
+											Quit
+										</Button>
+									</>
 								) : (
 									<Button
 										type='submit'
 										className={styles.buttonPlay}
-										onClick={() => joinGame(inputGameId, inputName)}
+										onClick={async () => {
+											await joinGame(inputGameId, inputName);
+											await readGame(inputGameId);
+										}}
 									>
 										Join
 									</Button>
@@ -403,6 +407,11 @@ export default function Home() {
 									</div>
 								</form>
 							</CardContent>
+							{gameId && (
+								<p className={styles.gameId}>
+									Game ID: <span className='font-bold'>{gameId}</span>
+								</p>
+							)}
 							<CardFooter className='flex-col gap-2'>
 								{gameStatus === 'waiting' ? (
 									<>
@@ -419,7 +428,7 @@ export default function Home() {
 											type='submit'
 											variant='ghost'
 											className={styles.buttonCancel}
-											onClick={() => cancelGame()}
+											onClick={() => deleteGame()}
 										>
 											<XCircle className='mr-1 h-4 w-4' />
 											Cancel

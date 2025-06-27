@@ -5,8 +5,16 @@ import { useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
 export const useGameActions = () => {
-	const { setGameId, setUserName, setMaxPlayerNumber, setGameStatus, setJoinedPlayerNumber } =
-		useGame();
+	const {
+		setGameId,
+		setUserName,
+		setMaxPlayerNumber,
+		setGameStatus,
+		setJoinedPlayerNumber,
+		gameId,
+		setPlayer,
+		setGame,
+	} = useGame();
 	const { setGameMode } = useGameMode();
 
 	const [loading, setLoading] = useState(false);
@@ -64,6 +72,31 @@ export const useGameActions = () => {
 		}
 	};
 
+	const readGame = async (gameIdArg: string) => {
+		setError(null);
+
+		try {
+			// 1. Fetch game data
+			const { data: game, error: gameFetchError } = await supabase
+				.from('games')
+				.select('*')
+				.eq('id', gameIdArg)
+				.single();
+
+			if (gameFetchError) throw gameFetchError;
+
+			// 3. Update local state
+			setGame(game);
+			setMaxPlayerNumber(game.max_player_number);
+			setJoinedPlayerNumber(game.joined_player_number);
+			// setGameMode(game.mode);
+			// setGameStatus(game.status);
+		} catch (err: any) {
+			setError(err.message || 'Unknown error');
+			console.error('Read game error:', JSON.stringify(err, null, 2));
+		}
+	};
+
 	const joinGame = async (inputGameId: string, inputName: string) => {
 		if (!inputGameId || !inputName) return;
 
@@ -74,11 +107,13 @@ export const useGameActions = () => {
 			// Check if game exists
 			const { data: game, error: gameFetchError } = await supabase
 				.from('games')
-				.select('id')
+				.select('*')
 				.eq('id', inputGameId)
 				.single();
 
 			if (gameFetchError) throw gameFetchError;
+
+			if (!game) throw new Error('Game not found');
 
 			// Check if player already exists
 			const { data: existingPlayer, error: playerFetchError } = await supabase
@@ -102,9 +137,19 @@ export const useGameActions = () => {
 				if (insertError) throw insertError;
 			}
 
+			const { error: gameUpdateError } = await supabase
+				.from('games')
+				.update({
+					joined_player_number: game.joined_player_number + 1,
+				})
+				.eq('id', inputGameId);
+
+			if (gameUpdateError) throw gameUpdateError;
+
 			// Update local state
 			setGameId(inputGameId);
 			setUserName(inputName);
+			setPlayer(existingPlayer[0]);
 		} catch (err: any) {
 			setError(err.message || 'Unknown error');
 			console.error('Join game error:', JSON.stringify(err, null, 2));
@@ -113,5 +158,73 @@ export const useGameActions = () => {
 		}
 	};
 
-	return { createGame, joinGame, loading, error };
+	const quitGame = async () => {
+		setError(null);
+
+		try {
+			if (!gameId) throw new Error('No game selected for deletion.');
+
+			const { data: game, error: gameFetchError } = await supabase
+				.from('games')
+				.select('*')
+				.eq('id', gameId)
+				.single();
+
+			if (gameFetchError) throw gameFetchError;
+
+			if (!game) throw new Error('Game not found');
+
+			const { error: gameUpdateError } = await supabase
+				.from('games')
+				.update({
+					joined_player_number: game.joined_player_number - 1,
+				})
+				.eq('id', gameId);
+
+			if (gameUpdateError) throw gameUpdateError;
+		} catch (err: any) {
+			setError(err.message || 'Unknown error');
+			console.error('Quit game error:', JSON.stringify(err, null, 2));
+		}
+	};
+
+	const deleteGame = async () => {
+		setLoading(true);
+		setError(null);
+
+		try {
+			if (!gameId) throw new Error('No game selected for deletion.');
+
+			// 1. Delete all related players (to avoid foreign key constraint)
+			const { error: deletePlayersError } = await supabase
+				.from('players')
+				.delete()
+				.eq('game_id', gameId);
+
+			if (deletePlayersError) throw deletePlayersError;
+
+			// 2. Delete the game itself
+			const { error: deleteGameError } = await supabase
+				.from('games')
+				.delete()
+				.eq('id', gameId);
+
+			if (deleteGameError) throw deleteGameError;
+
+			// 3. Reset local state
+			setGameId('');
+			setMaxPlayerNumber(0);
+			setGameMode('quick');
+			setGameStatus(null);
+			setJoinedPlayerNumber(0);
+			setPlayer(null);
+		} catch (err: any) {
+			setError(err.message || 'Unknown error');
+			console.error('Delete game error:', JSON.stringify(err, null, 2));
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	return { createGame, joinGame, deleteGame, readGame, quitGame, loading, error };
 };

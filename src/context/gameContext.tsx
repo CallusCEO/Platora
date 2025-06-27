@@ -1,8 +1,7 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState } from 'react';
-import { supabase } from '@/lib/supabaseClient';
-import { AllGameStatus, Company, GameContextType, Player } from '@/types/gameTypes';
+import { createContext, useContext, useState } from 'react';
+import { AllGameStatus, Company, Game, GameContextType, Player } from '@/types/gameTypes';
 
 // ----------------------
 // Game Context
@@ -11,7 +10,10 @@ import { AllGameStatus, Company, GameContextType, Player } from '@/types/gameTyp
 export const GameContext = createContext<GameContextType>({
 	loading: true,
 	player: null,
+	setPlayer: () => {},
 	company: null,
+	game: null,
+	setGame: () => {},
 	gameId: null,
 	setGameId: () => {},
 	gameStatus: 'waiting',
@@ -43,6 +45,7 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 	const [player, setPlayer] = useState<Player | null>(null);
 	const [company, setCompany] = useState<Company | null>(null);
 	const [gameId, setGameId] = useState<string | null>(null);
+	const [game, setGame] = useState<Game | null>(null);
 	const [gameStatus, setGameStatus] = useState<AllGameStatus>(null);
 
 	const [maxPlayerNumber, setMaxPlayerNumber] = useState<number>(0);
@@ -52,55 +55,12 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 	const [start, setStart] = useState<boolean>(false);
 	const [gameMode, setGameMode] = useState<string>('quick');
 
-	// Load player after gameId and userName are set
-	useEffect(() => {
-		if (!userName || !gameId) return;
-
-		const fetchPlayer = async () => {
-			const { data, error } = await supabase
-				.from('players')
-				.select('*')
-				.eq('name', userName)
-				.eq('game_id', gameId)
-				.single();
-
-			if (data) {
-				setPlayer(data);
-			} else if (error) {
-				console.warn('No player found:', error.message);
-			}
-			setLoading(false);
-		};
-
-		fetchPlayer();
-	}, [userName, gameId]);
-
-	// Load company when player is ready
-	useEffect(() => {
-		if (!player) return;
-
-		const fetchCompany = async () => {
-			const { data, error } = await supabase
-				.from('companies')
-				.select('*')
-				.eq('player_id', player.id)
-				.single();
-
-			if (data) {
-				setCompany(data);
-			} else if (error) {
-				console.warn('No company found:', error.message);
-			}
-		};
-
-		fetchCompany();
-	}, [player]);
-
 	return (
 		<GameContext.Provider
 			value={{
 				loading,
 				player,
+				setPlayer,
 				company,
 				gameId,
 				setGameId,
@@ -116,6 +76,8 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 				setTime,
 				start,
 				setStart,
+				game,
+				setGame,
 			}}
 		>
 			<GameModeContext.Provider value={{ gameMode, setGameMode }}>
