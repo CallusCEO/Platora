@@ -1,7 +1,8 @@
 'use client';
 
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import { AllGameStatus, Company, Game, GameContextType, Player } from '@/types/gameTypes';
+import { supabase } from '@/lib/supabaseClient';
 
 // ----------------------
 // Game Context
@@ -54,6 +55,35 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 	const [time, setTime] = useState<number>(0);
 	const [start, setStart] = useState<boolean>(false);
 	const [gameMode, setGameMode] = useState<string>('quick');
+
+	// Subscribe to real-time changes on the games table for this gameId
+	useEffect(() => {
+		if (!gameId) return;
+
+		const subscription = supabase
+			.channel('public:games')
+			.on(
+				'postgres_changes',
+				{ event: '*', schema: 'public', table: 'games', filter: `id=eq.${gameId}` },
+				(payload) => {
+					console.log('Change received!', payload);
+					if (payload.eventType === 'UPDATE' || payload.eventType === 'INSERT') {
+						setGame(payload.new as Game);
+						setGameStatus(payload.new.status);
+						setJoinedPlayerNumber(payload.new.joined_player_number);
+						setMaxPlayerNumber(payload.new.max_player_number);
+					} else if (payload.eventType === 'DELETE') {
+						setGame(null);
+					}
+				}
+			)
+			.subscribe();
+
+		// Cleanup on unmount or gameId change
+		return () => {
+			supabase.removeChannel(subscription);
+		};
+	}, [gameId]);
 
 	return (
 		<GameContext.Provider

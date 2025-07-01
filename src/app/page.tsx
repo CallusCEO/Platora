@@ -44,7 +44,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import CountUp from '@/components/reactBits/CountUp/CountUp';
 import { useGame, useGameMode } from '@/context/gameContext';
 import {
@@ -71,22 +71,12 @@ import { Separator } from '@/components/ui/separator';
 import { handleSmoothScroll } from '@/utils/smoothScroll';
 import { Slider } from '@/components/ui/slider';
 import { useGameActions } from '@/hooks/gameHooks';
+import { useRouter } from 'next/navigation';
 
 export default function Home() {
-	const { joinGame, createGame, deleteGame, readGame, quitGame, loading, error } =
+	const { joinGame, createGame, deleteGame, readGame, quitGame, startGame, loading, error } =
 		useGameActions();
-	const { setGameMode } = useGameMode();
-	const {
-		player,
-		maxPlayerNumber,
-		setMaxPlayerNumber,
-		joinedPlayerNumber,
-		setGameId,
-		gameId,
-		setUserName,
-		setGameStatus,
-		gameStatus,
-	} = useGame();
+	const { player, maxPlayerNumber, joinedPlayerNumber, gameId, gameStatus } = useGame();
 
 	const [inputGameId, setInputGameId] = useState('');
 	const [inputName, setInputName] = useState('');
@@ -96,8 +86,24 @@ export default function Home() {
 	// for the popover
 	const [open, setOpen] = useState(false);
 
-	// player count
-	// const [maxPlayer, setMaxPlayer] = useState<number>(30);
+	// redirect to /lobby if status == 'started'
+	const router = useRouter();
+	useEffect(() => {
+		if (gameStatus === 'started') {
+			router.push('/lobby');
+		}
+	}, [gameStatus]);
+
+	// to read the game row
+	useEffect(() => {
+		if (player && gameId) {
+			console.log('player and gameId', player, gameId);
+			readGame(gameId);
+		}
+	}, [player, gameId]);
+
+	// CHARTS DATA
+	// --------------------------------------------------
 
 	// background chart
 	const chartData = [
@@ -200,6 +206,8 @@ export default function Home() {
 		},
 	} satisfies ChartConfig;
 
+	// --------------------------------------------------
+
 	return (
 		<div className={styles.container}>
 			<Navbar />
@@ -220,8 +228,12 @@ export default function Home() {
 
 			<Tabs defaultValue='join' id='playContainer' className='z-10'>
 				<TabsList>
-					<TabsTrigger value='join'>Join a game</TabsTrigger>
-					<TabsTrigger value='create'>Create new game</TabsTrigger>
+					<TabsTrigger value='join' disabled={gameId ? true : false}>
+						Join a game
+					</TabsTrigger>
+					<TabsTrigger value='create' disabled={gameId ? true : false}>
+						Create new game
+					</TabsTrigger>
 				</TabsList>
 				<TabsContent value='join' className={styles.playContainer}>
 					<div className={styles.topPlayContainer}>
@@ -259,6 +271,7 @@ export default function Home() {
 												placeholder='xxxxxxxx-xxxx-Mxxx-Nxxx-xxxxxxxxxxxx'
 												required
 												onChange={(e) => setInputGameId(e.target.value)}
+												value={inputGameId}
 											/>
 										</div>
 									</div>
@@ -282,13 +295,21 @@ export default function Home() {
 												placeholder='Bruce Wayne'
 												required
 												onChange={(e) => setInputName(e.target.value)}
+												value={inputName}
 											/>
 										</div>
 									</div>
 								</form>
 							</CardContent>
 							<CardFooter className='flex-col gap-2'>
-								{player ? (
+								{error && (
+									<Alert variant='destructive' className='mb-4'>
+										<AlertCircleIcon className='h-4 w-4' />
+										<AlertTitle>Joining game failed</AlertTitle>
+										<AlertDescription>{error}</AlertDescription>
+									</Alert>
+								)}
+								{!error && player ? (
 									<>
 										<Button
 											type='submit'
@@ -315,8 +336,8 @@ export default function Home() {
 										className={styles.buttonPlay}
 										onClick={async () => {
 											await joinGame(inputGameId, inputName);
-											await readGame(inputGameId);
 										}}
+										disabled={loading}
 									>
 										Join
 									</Button>
@@ -415,15 +436,27 @@ export default function Home() {
 							<CardFooter className='flex-col gap-2'>
 								{gameStatus === 'waiting' ? (
 									<>
-										<Button
-											type='submit'
-											disabled
-											variant='ghost'
-											className={styles.buttonPlayDisabled}
-										>
-											<Loader2 className='mr-1 h-4 w-4 animate-spin' />
-											Waiting for players...
-										</Button>
+										{joinedPlayerNumber < maxPlayerNumber ? (
+											<Button
+												type='submit'
+												disabled
+												variant='ghost'
+												className={styles.buttonPlayDisabled}
+												onClick={() => startGame()}
+											>
+												<Loader2 className='mr-1 h-4 w-4 animate-spin' />
+												Waiting for players...
+											</Button>
+										) : (
+											<Button
+												type='submit'
+												variant='ghost'
+												className={styles.buttonPlay}
+												onClick={() => startGame()}
+											>
+												Start Game
+											</Button>
+										)}
 										<Button
 											type='submit'
 											variant='ghost'
@@ -542,7 +575,7 @@ export default function Home() {
 						</CardContent>
 						<CardFooter className='flex-col items-start gap-2 text-sm'>
 							<div className='flex gap-2 leading-none font-medium'>
-								Trending up by 11% this month <TrendingUp className='h-4 w-4' />
+								Trending up by 185% this month <TrendingUp className='h-4 w-4' />
 							</div>
 							<div className='text-muted-foreground leading-none'>
 								Showing total clients for the last 6 months
@@ -575,7 +608,7 @@ export default function Home() {
 						</CardContent>
 						<CardFooter className='flex-col items-start gap-2 text-sm'>
 							<div className='flex gap-2 leading-none font-medium'>
-								Trending up by 185% this month <TrendingUp className='h-4 w-4' />
+								Trending up by 11% this month <TrendingUp className='h-4 w-4' />
 							</div>
 							<div className='text-muted-foreground leading-none'>
 								Showing total revenue for the last 20 months

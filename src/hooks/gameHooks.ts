@@ -12,8 +12,10 @@ export const useGameActions = () => {
 		setGameStatus,
 		setJoinedPlayerNumber,
 		gameId,
+		joinedPlayerNumber,
 		setPlayer,
 		setGame,
+		player,
 	} = useGame();
 	const { setGameMode } = useGameMode();
 
@@ -112,8 +114,23 @@ export const useGameActions = () => {
 				.single();
 
 			if (gameFetchError) throw gameFetchError;
-
 			if (!game) throw new Error('Game not found');
+
+			// check if the game is not full or already started
+			const { data: game2, error: gameFetchError2 } = await supabase
+				.from('games')
+				.select('*')
+				.eq('id', inputGameId)
+				.single();
+
+			if (gameFetchError2) throw gameFetchError2;
+			if (!game2) throw new Error('Game not found');
+
+			if (game2.joined_player_number >= game2.max_player_number)
+				throw new Error('Game is full');
+			if (game2.status === 'started' || game2.status === 'ended')
+				throw new Error('Game is already started');
+			setGameId(inputGameId);
 
 			// Check if player already exists
 			const { data: existingPlayer, error: playerFetchError } = await supabase
@@ -126,33 +143,58 @@ export const useGameActions = () => {
 
 			if (!existingPlayer || existingPlayer.length === 0) {
 				// Insert player if not exists
-				const { error: insertError } = await supabase.from('players').insert({
-					game_id: inputGameId,
-					name: inputName,
-					wealth: 0,
-					location: null,
-					stats_json: null,
-				});
+				const { data: playerData, error: insertError } = await supabase
+					.from('players')
+					.insert({
+						game_id: inputGameId,
+						name: inputName,
+						wealth: 0,
+						location: null,
+						stats_json: null,
+					});
 
 				if (insertError) throw insertError;
 			}
 
+			// get the player data
+			const { data: playerData, error: playerFetchError2 } = await supabase
+				.from('players')
+				.select('*')
+				.eq('game_id', inputGameId)
+				.eq('name', inputName)
+				.single();
+
+			if (playerFetchError2) throw playerFetchError2;
+			setPlayer(playerData);
+
 			const { error: gameUpdateError } = await supabase
 				.from('games')
 				.update({
-					joined_player_number: game.joined_player_number + 1,
+					joined_player_number: game2.joined_player_number + 1,
 				})
 				.eq('id', inputGameId);
 
 			if (gameUpdateError) throw gameUpdateError;
 
 			// Update local state
-			setGameId(inputGameId);
 			setUserName(inputName);
-			setPlayer(existingPlayer[0]);
 		} catch (err: any) {
-			setError(err.message || 'Unknown error');
-			console.error('Join game error:', JSON.stringify(err, null, 2));
+			// Handle different types of errors
+			let errorMessage = 'Unknown error joining game';
+			if (err?.message) {
+				errorMessage = err.message;
+			} else if (typeof err === 'string') {
+				errorMessage = err;
+			} else if (err?.error_description || err?.error) {
+				errorMessage = err.error_description || err.error;
+			}
+
+			setError(errorMessage);
+			console.error('Join game error:', {
+				error: err,
+				errorMessage,
+				timestamp: new Date().toISOString(),
+			});
 		} finally {
 			setLoading(false);
 		}
@@ -162,26 +204,34 @@ export const useGameActions = () => {
 		setError(null);
 
 		try {
-			if (!gameId) throw new Error('No game selected for deletion.');
+			if (!gameId) throw new Error('No game found to quit.');
 
-			const { data: game, error: gameFetchError } = await supabase
-				.from('games')
+			const { data: playerData, error: playerFetchError } = await supabase
+				.from('players')
 				.select('*')
-				.eq('id', gameId)
+				.eq('id', player?.id)
 				.single();
 
-			if (gameFetchError) throw gameFetchError;
+			if (playerFetchError) throw playerFetchError;
 
-			if (!game) throw new Error('Game not found');
+			if (!playerData) throw new Error('Player not found');
 
 			const { error: gameUpdateError } = await supabase
 				.from('games')
 				.update({
-					joined_player_number: game.joined_player_number - 1,
+					joined_player_number: joinedPlayerNumber - 1,
 				})
 				.eq('id', gameId);
 
 			if (gameUpdateError) throw gameUpdateError;
+
+			setGameId('');
+			setPlayer(null);
+			setGame(null);
+			setGameStatus(null);
+			setJoinedPlayerNumber(0);
+			setMaxPlayerNumber(0);
+			setUserName('');
 		} catch (err: any) {
 			setError(err.message || 'Unknown error');
 			console.error('Quit game error:', JSON.stringify(err, null, 2));
@@ -226,5 +276,30 @@ export const useGameActions = () => {
 		}
 	};
 
-	return { createGame, joinGame, deleteGame, readGame, quitGame, loading, error };
+	const startGame = async () => {
+		setLoading(true);
+		setError(null);
+
+		try {
+			if (!gameId) throw new Error('No game selected for starting.');
+
+			const { error: gameUpdateError } = await supabase
+				.from('games')
+				.update({
+					status: 'started',
+				})
+				.eq('id', gameId);
+
+			if (gameUpdateError) throw gameUpdateError;
+
+			setGameStatus('started');
+		} catch (err: any) {
+			setError(err.message || 'Unknown error');
+			console.error('Start game error:', JSON.stringify(err, null, 2));
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	return { createGame, joinGame, deleteGame, readGame, quitGame, startGame, loading, error };
 };

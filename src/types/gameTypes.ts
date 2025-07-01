@@ -433,7 +433,7 @@ export type GameContextType = {
 	gameStatus: AllGameStatus;
 	setGameStatus: (value: AllGameStatus) => void;
 	game: Game | null;
-	setGame: (value: Game) => void;
+	setGame: (value: Game | null) => void;
 	maxPlayerNumber: number;
 	setMaxPlayerNumber: (value: number) => void;
 	joinedPlayerNumber: number;
