@@ -68,7 +68,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import TextPressure from '@/components/reactBits/TextPressure/TextPressure';
 import { Separator } from '@/components/ui/separator';
-import { handleSmoothScroll } from '@/utils/smoothScroll';
+import { handleSmoothScroll } from '@/lib/smoothScroll';
 import { Slider } from '@/components/ui/slider';
 import { useGameActions } from '@/hooks/gameHooks';
 import { useRouter } from 'next/navigation';
@@ -294,6 +294,7 @@ export default function Home() {
 												type='text'
 												placeholder='Bruce Wayne'
 												required
+												maxLength={20}
 												onChange={(e) => setInputName(e.target.value)}
 												value={inputName}
 											/>
@@ -421,6 +422,7 @@ export default function Home() {
 												type='text'
 												placeholder='Bruce Wayne'
 												required
+												maxLength={20}
 												value={inputName}
 												onChange={(e) => setInputName(e.target.value)}
 											/>

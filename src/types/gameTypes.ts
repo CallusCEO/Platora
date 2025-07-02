@@ -363,6 +363,7 @@ export type Game = {
 	tick_interval: number; // 3, 5, 10 min
 	time: number; // in minutes (30, 60, 120)
 	status: AllGameStatus;
+	started_at: string | null;
 };
 
 export type Quarter = {
@@ -424,10 +425,13 @@ export type Customer = {
 // --------------------------------
 
 export type GameContextType = {
+	startedAt: string | null;
+	setStartedAt: (value: string | null) => void;
 	loading: boolean;
 	player: Player | null;
 	setPlayer: (value: Player | null) => void;
 	company: Company | null;
+	setCompany: (value: Company | null) => void;
 	gameId: string | null;
 	setGameId: (value: string) => void;
 	gameStatus: AllGameStatus;
@@ -442,6 +446,6 @@ export type GameContextType = {
 	setUserName: (value: string) => void;
 	time: number;
 	setTime: (value: number) => void;
-	start: boolean;
-	setStart: (value: boolean) => void;
+	talent: string;
+	setTalent: (value: string) => void;
 };

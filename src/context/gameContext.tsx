@@ -11,8 +11,11 @@ import { supabase } from '@/lib/supabaseClient';
 export const GameContext = createContext<GameContextType>({
 	loading: true,
 	player: null,
+	startedAt: null,
+	setStartedAt: () => {},
 	setPlayer: () => {},
 	company: null,
+	setCompany: () => {},
 	game: null,
 	setGame: () => {},
 	gameId: null,
@@ -27,8 +30,8 @@ export const GameContext = createContext<GameContextType>({
 	setUserName: () => {},
 	time: 0,
 	setTime: () => {},
-	start: false,
-	setStart: () => {},
+	talent: '',
+	setTalent: () => {},
 });
 
 export const GameModeContext = createContext({
@@ -42,6 +45,7 @@ export const GameModeContext = createContext({
 
 export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 	const [loading, setLoading] = useState(true);
+	const [startedAt, setStartedAt] = useState<string | null>(null);
 
 	const [player, setPlayer] = useState<Player | null>(null);
 	const [company, setCompany] = useState<Company | null>(null);
@@ -53,8 +57,8 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 	const [joinedPlayerNumber, setJoinedPlayerNumber] = useState<number>(0);
 	const [userName, setUserName] = useState<string>('');
 	const [time, setTime] = useState<number>(0);
-	const [start, setStart] = useState<boolean>(false);
 	const [gameMode, setGameMode] = useState<string>('quick');
+	const [talent, setTalent] = useState<string>('');
 
 	// Subscribe to real-time changes on the games table for this gameId
 	useEffect(() => {
@@ -88,10 +92,13 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 	return (
 		<GameContext.Provider
 			value={{
+				startedAt,
+				setStartedAt,
 				loading,
 				player,
 				setPlayer,
 				company,
+				setCompany,
 				gameId,
 				setGameId,
 				gameStatus,
@@ -104,8 +111,8 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 				setUserName,
 				time,
 				setTime,
-				start,
-				setStart,
+				talent,
+				setTalent,
 				game,
 				setGame,
 			}}

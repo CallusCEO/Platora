@@ -1,6 +1,7 @@
 'use client';
 import { useGame, useGameMode } from '@/context/gameContext';
 import { supabase } from '@/lib/supabaseClient';
+import { PlayerStatsType } from '@/types/gameTypes';
 import { useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -8,6 +9,7 @@ export const useGameActions = () => {
 	const {
 		setGameId,
 		setUserName,
+		userName,
 		setMaxPlayerNumber,
 		setGameStatus,
 		setJoinedPlayerNumber,
@@ -16,6 +18,9 @@ export const useGameActions = () => {
 		setPlayer,
 		setGame,
 		player,
+		setTime,
+		setStartedAt,
+		talent,
 	} = useGame();
 	const { setGameMode } = useGameMode();
 
@@ -52,12 +57,24 @@ export const useGameActions = () => {
 			const { error: playerError } = await supabase.from('players').insert({
 				game_id: newGameId,
 				name: inputName,
-				wealth: 0,
+				wealth: 100,
 				location: null,
 				stats_json: null,
 			});
 
 			if (playerError) throw playerError;
+
+			// get the player data
+			const { data: playerData, error: playerFetchError2 } = await supabase
+				.from('players')
+				.select('*')
+				.eq('game_id', newGameId)
+				.eq('name', inputName)
+				.single();
+
+			if (playerFetchError2) throw playerFetchError2;
+			console.log(playerData);
+			setPlayer(playerData);
 
 			// Update local state
 			setGameId(newGameId);
@@ -91,8 +108,7 @@ export const useGameActions = () => {
 			setGame(game);
 			setMaxPlayerNumber(game.max_player_number);
 			setJoinedPlayerNumber(game.joined_player_number);
-			// setGameMode(game.mode);
-			// setGameStatus(game.status);
+			setGameMode(game.mode);
 		} catch (err: any) {
 			setError(err.message || 'Unknown error');
 			console.error('Read game error:', JSON.stringify(err, null, 2));
@@ -148,7 +164,7 @@ export const useGameActions = () => {
 					.insert({
 						game_id: inputGameId,
 						name: inputName,
-						wealth: 0,
+						wealth: 100,
 						location: null,
 						stats_json: null,
 					});
@@ -287,12 +303,14 @@ export const useGameActions = () => {
 				.from('games')
 				.update({
 					status: 'started',
+					started_at: new Date().toISOString(),
 				})
 				.eq('id', gameId);
 
 			if (gameUpdateError) throw gameUpdateError;
 
 			setGameStatus('started');
+			setStartedAt(new Date().toISOString());
 		} catch (err: any) {
 			setError(err.message || 'Unknown error');
 			console.error('Start game error:', JSON.stringify(err, null, 2));
@@ -301,5 +319,76 @@ export const useGameActions = () => {
 		}
 	};
 
-	return { createGame, joinGame, deleteGame, readGame, quitGame, startGame, loading, error };
+	const checkTime = async () => {
+		if (!gameId) throw new Error('No game selected for checking time.');
+
+		const { data: game, error: gameFetchError } = await supabase
+			.from('games')
+			.select('*')
+			.eq('id', gameId)
+			.single();
+
+		if (gameFetchError) throw gameFetchError;
+
+		// handle the logic of calaculation time
+		const time = game.started_at;
+
+		const start = new Date(time); // convert to Date object
+		const now = Date.now(); // current time in milliseconds
+
+		const timeDiff = now - start.getTime(); // subtract milliseconds
+		const timeDiffSeconds = Math.floor(timeDiff / 1000);
+		console.log(timeDiffSeconds);
+
+		setTime(timeDiffSeconds);
+	};
+
+	const attributeStats = async (stats: PlayerStatsType) => {
+		if (!gameId) throw new Error('No game selected for attributing stats.');
+
+		// update player stats
+		const { error: gameUpdateError } = await supabase
+			.from('player')
+			.update({
+				stats_json: {
+					marketing: stats.marketing,
+					productivity: stats.productivity,
+					creativity: stats.creativity,
+					financeManagement: stats.financeManagement,
+					humanResources: stats.humanResources,
+					leadership: stats.leadership,
+					communication: stats.communication,
+					technicalSkill: stats.technicalSkill,
+					negotiation: stats.negotiation,
+					strategy: stats.strategy,
+					adaptability: stats.adaptability,
+					stressManagement: stats.stressManagement,
+					riskManagement: stats.riskManagement,
+					analyticalThinking: stats.analyticalThinking,
+					resilience: stats.resilience,
+					innovation: stats.innovation,
+					reputation: stats.reputation,
+					learningSpeed: stats.learningSpeed,
+					luck: stats.luck,
+					ambition: stats.ambition,
+				},
+			})
+			.eq('game_id', gameId)
+			.eq('name', userName);
+
+		if (gameUpdateError) throw gameUpdateError;
+	};
+
+	return {
+		createGame,
+		joinGame,
+		deleteGame,
+		readGame,
+		quitGame,
+		startGame,
+		checkTime,
+		loading,
+		error,
+		attributeStats,
+	};
 };
